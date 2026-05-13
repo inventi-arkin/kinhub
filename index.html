@@ -305,7 +305,7 @@
     ];
 
     const FULL_SIGNS = [
-      { x: 1.2, y: 6.42, z: 45, w: 3.5, text: "CEO", rot: 0 }, { x: 7.2, y: 6.42, z: 45, w: 3.5, text: "CTO", rot: 0 }, { x: 14.2, y: 6.42, z: 45, w: 3.5, text: "CFO", rot: 0 },
+      { x: 1.2, y: 0.42, z: 45, w: 3.5, text: "CEO", rot: 0 }, { x: 7.2, y: 0.42, z: 45, w: 3.5, text: "CTO", rot: 0 }, { x: 14.2, y: 0.42, z: 45, w: 3.5, text: "CFO", rot: 0 },
       { x: 1.2, y: 8.42, z: 45, w: 6, text: "Devs", rot: 0 },
       { x: 1.0, y: 20.42, z: 45, w: 3, text: "BA", rot: 0 }, { x: 9.2, y: 20.42, z: 45, w: 4, text: "QA", rot: 0 },
       { x: 1.2, y: 30.42, z: 45, w: 6, text: "Project Mgmt", rot: 0 }, { x: 11.2, y: 30.42, z: 45, w: 4, text: "UI Design", rot: 0 },
@@ -713,7 +713,7 @@
            {user && (
              <div 
                className={`absolute group pointer-events-auto ${onSelectUser ? 'cursor-pointer' : ''}`} 
-               style={{ left: 10, top: 10, transform: 'translateZ(16px)', transformStyle: 'preserve-3d' }}
+               style={{ left: 40, top: 58, transform: 'translateZ(16px)', transformStyle: 'preserve-3d' }}
                onPointerDown={(e) => { e.stopPropagation(); if (onSelectUser) onSelectUser(user.uid); }}
              >
                 <div style={{ transform: `rotateZ(-${dir}deg)`, transformStyle: 'preserve-3d' }}>
