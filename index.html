@@ -114,6 +114,7 @@
     const Bed = (p) => <Icon name="Bed" {...p} />;
     const Send = (p) => <Icon name="Send" {...p} />;
     const ChevronLeft = (p) => <Icon name="ChevronLeft" {...p} />;
+    const Music = (p) => <Icon name="Music" {...p} />;
 
     // --- Firebase Configuration ---
     const firebaseConfig = {
@@ -222,7 +223,7 @@
       // Right Horizontals
       { x: 26, y: 10, w: 20, h: 0.4, type: 'solid' },
       { x: 26, y: 20, w: 20, h: 0.4, type: 'solid' }, 
-      { x: 26, y: 30, w: 20, h: 0.4, type: 'solid' },
+      { x: 26, y: 30, w: 20, h: 0.4, type: 'glass' },
       { x: 26, y: 38, w: 20, h: 0.4, type: 'solid' },
 
       // Left Verticals
@@ -284,11 +285,24 @@
       { x: 43.5, y: 21.5, type: 'clinicBed', rot: 0 }, { x: 43.5, y: 24.5, type: 'clinicBed', rot: 0 }, { x: 43.5, y: 27.5, type: 'clinicBed', rot: 0 },
 
       // Events
-      { x: 4, y: 41, type: 'longTable' }, 
-      { x: 4.5, y: 40, type: 'chairProp', rot: 0 }, { x: 5.8, y: 40, type: 'chairProp', rot: 0 }, { x: 7.1, y: 40, type: 'chairProp', rot: 0 },
-      { x: 4.5, y: 43, type: 'chairProp', rot: 180 }, { x: 5.8, y: 43, type: 'chairProp', rot: 180 }, { x: 7.1, y: 43, type: 'chairProp', rot: 180 },
-      { x: 1.5, y: 39, type: 'speaker', rot: 45 }, { x: 15.5, y: 39, type: 'speaker', rot: -45 }, 
-      { x: 8, y: 45.4, type: 'tvScreen', rot: 0 },
+      { x: 2, y: 41, type: 'longTable' }, 
+      { x: 2.5, y: 40, type: 'chairProp', rot: 0 }, { x: 3.8, y: 40, type: 'chairProp', rot: 0 }, { x: 5.1, y: 40, type: 'chairProp', rot: 0 },
+      { x: 2.5, y: 43, type: 'chairProp', rot: 180 }, { x: 3.8, y: 43, type: 'chairProp', rot: 180 }, { x: 5.1, y: 43, type: 'chairProp', rot: 180 },
+      
+      { x: 8, y: 41, type: 'longTable' }, 
+      { x: 8.5, y: 40, type: 'chairProp', rot: 0 }, { x: 9.8, y: 40, type: 'chairProp', rot: 0 }, { x: 11.1, y: 40, type: 'chairProp', rot: 0 },
+      { x: 8.5, y: 43, type: 'chairProp', rot: 180 }, { x: 9.8, y: 43, type: 'chairProp', rot: 180 }, { x: 11.1, y: 43, type: 'chairProp', rot: 180 },
+      
+      { x: 14, y: 41, type: 'longTable' }, 
+      { x: 14.5, y: 40, type: 'chairProp', rot: 0 }, { x: 15.8, y: 40, type: 'chairProp', rot: 0 }, { x: 17.1, y: 40, type: 'chairProp', rot: 0 },
+      { x: 14.5, y: 43, type: 'chairProp', rot: 180 }, { x: 15.8, y: 43, type: 'chairProp', rot: 180 }, { x: 17.1, y: 43, type: 'chairProp', rot: 180 },
+      
+      { x: 3, y: 41.5, type: 'boxOpen', rot: 45 }, { x: 4.5, y: 41.2, type: 'boxClosed', rot: 15 },
+      { x: 9.5, y: 41.5, type: 'boxClosed', rot: 0 }, { x: 10.5, y: 41.2, type: 'plant' },
+      { x: 15, y: 41.5, type: 'boxOpen', rot: -15 }, { x: 16.5, y: 41.2, type: 'snackShelf' },
+
+      { x: 1.5, y: 39, type: 'speaker', rot: 45 }, { x: 18.5, y: 39, type: 'speaker', rot: -45 }, 
+      { x: 10, y: 45.4, type: 'tvScreen', rot: 0 },
 
       // Decorative
       { x: 0.5, y: 40, type: 'whiteboard', rot: 90 }, { x: 16, y: 42, type: 'boxOpen', rot: 15 }, { x: 15.5, y: 43, type: 'boxClosed', rot: 0 },
@@ -321,7 +335,7 @@
     // Calculate effective status taking Time In/Out and Breaks into account
     const getEffectiveStatus = (member) => {
       if (!member) return 'mia';
-      if (!member.isTimedIn && member.workStatus !== 'leave' && member.workStatus !== 'sick') return 'mia';
+      if (!member.isTimedIn && member.workStatus !== 'leave' && member.workStatus !== 'sick' && member.workStatus !== 'event') return 'mia';
       if (member.isTimedIn && member.isOnBreak) return 'break';
       return member.workStatus || 'office';
     };
@@ -333,6 +347,7 @@
       { id: 'field', label: 'On Field Work', icon: MapPin, selectable: true },
       { id: 'leave', label: 'On Leave', icon: Plane, selectable: true },
       { id: 'sick', label: 'Is Sick', icon: Bed, selectable: true },
+      { id: 'event', label: 'Attending Company Event', icon: Music, selectable: true },
       { id: 'mia', label: 'Missing In Action', icon: UserX, selectable: false },
       { id: 'break', label: 'Having a Break', icon: Coffee, selectable: false }
     ];
@@ -373,6 +388,7 @@
       const isPlaid = top === 'Flannel';
       const isGhost = effectiveStatus === 'leave';
       const isMIA = effectiveStatus === 'mia';
+      const isEvent = effectiveStatus === 'event';
       
       // Body scaling offsets for silhouette
       let tW = 36, tX = 32, aL = 20, aR = 68; 
@@ -380,7 +396,7 @@
       if (bodyType === 'Slender') { tW = 28; tX = 36; aL = 24; aR = 64; }
 
       return (
-        <svg width={size} height={size * 1.5} viewBox="0 0 100 150" className={`${isGhost ? 'ghost-avatar' : ''} ${isMIA ? 'glow-red' : ''} ${className}`} style={{ ...style, '--anim-delay': style.animationDelay || '0s' }} overflow="visible">
+        <svg width={size} height={size * 1.5} viewBox="0 0 100 150" className={`${isGhost ? 'ghost-avatar' : ''} ${isMIA ? 'glow-red' : ''} ${isEvent ? 'dancing-avatar' : ''} ${className}`} style={{ ...style, '--anim-delay': style.animationDelay || '0s' }} overflow="visible">
           <defs>
             <pattern id={`plaid-${topColor.replace('#','')}`} x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
               <rect width="12" height="12" fill={topColor} />
@@ -664,9 +680,12 @@
              style={{ left: TILE/2, top: TILE/2, transform: 'translateZ(0px)', transformStyle: 'preserve-3d' }}
              onPointerDown={(e) => { e.stopPropagation(); if (onSelectUser) onSelectUser(user.uid); }}
            >
+              {/* Invisible stable hitbox to prevent hover jitter when SVG animates */}
+              <div className="absolute -left-6 -top-16 w-12 h-20 bg-transparent z-[100]"></div>
+
               <div style={{ transformStyle: 'preserve-3d' }}>
                  {/* Avatar */}
-                 <div className={`absolute transition-transform duration-300 ${isLyingDown ? (isSelected ? 'scale-125 z-50' : 'group-hover:scale-110') : (isSelected ? 'scale-125 -translate-y-6 z-50' : 'group-hover:scale-110 group-hover:-translate-y-2')} `} style={{ transform: isLyingDown ? 'translate(-50%, -50%) rotateZ(0deg) rotateX(0deg) translateZ(22px)' : 'rotateZ(-45deg) rotateX(-60deg) translate(-50%, -85%)', transformStyle: 'preserve-3d' }}>
+                 <div className={`absolute w-[48px] h-[72px] transition-transform duration-300 ${isLyingDown ? (isSelected ? 'scale-125 z-50' : 'group-hover:scale-110') : (isSelected ? 'scale-125 -translate-y-6 z-50' : 'group-hover:scale-110 group-hover:-translate-y-2')} `} style={{ transform: isLyingDown ? 'translate(-50%, -50%) rotateZ(0deg) rotateX(0deg) translateZ(22px)' : 'rotateZ(-45deg) rotateX(-60deg) translate(-50%, -85%)', transformStyle: 'preserve-3d' }}>
                    <ChibiAvatar 
                      config={user.avatarConfig} 
                      size={48} 
@@ -677,7 +696,7 @@
                  </div>
                  
                  {/* Badges & Nameplates (Always facing camera) */}
-                 <div className={`absolute transition-transform duration-300 ${isSelected ? 'scale-125 -translate-y-6 z-50' : 'group-hover:scale-110 group-hover:-translate-y-2'}`} style={{ transform: `rotateZ(-45deg) rotateX(-60deg) translate(-50%, ${isLyingDown ? '-30%' : '-85%'})`, transformStyle: 'preserve-3d' }}>
+                 <div className={`absolute w-[48px] h-[72px] transition-transform duration-300 ${isSelected ? 'scale-125 -translate-y-6 z-50' : 'group-hover:scale-110 group-hover:-translate-y-2'}`} style={{ transform: `rotateZ(-45deg) rotateX(-60deg) translate(-50%, ${isLyingDown ? '-30%' : '-85%'})`, transformStyle: 'preserve-3d' }}>
                     {/* Nameplate */}
                     <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-white/95 px-2 py-1 rounded-md shadow-md text-[9px] font-black text-slate-800 uppercase tracking-wider pointer-events-none whitespace-nowrap z-[60] border-b-2 border-slate-200 flex items-center gap-1">
                       {user.displayName || 'Member'}
@@ -689,6 +708,7 @@
                        effStatus === 'field' ? <MapPin size={12} className="text-emerald-600" /> :
                        effStatus === 'leave' ? <Plane size={12} className="text-sky-400" /> :
                        effStatus === 'sick' ? <Bed size={12} className="text-rose-500" /> :
+                       effStatus === 'event' ? <Music size={12} className="text-pink-500" /> :
                        effStatus === 'mia' ? <UserX size={12} className="text-rose-500" /> :
                        effStatus === 'break' ? <Coffee size={12} className="text-orange-500" /> :
                        <Briefcase size={12} className="text-slate-700" />}
@@ -716,8 +736,11 @@
                style={{ left: 40, top: 58, transform: 'translateZ(16px)', transformStyle: 'preserve-3d' }}
                onPointerDown={(e) => { e.stopPropagation(); if (onSelectUser) onSelectUser(user.uid); }}
              >
+                {/* Invisible stable hitbox to prevent hover jitter */}
+                <div className="absolute -left-6 -top-16 w-12 h-20 bg-transparent z-[100]"></div>
+
                 <div style={{ transform: `rotateZ(-${dir}deg)`, transformStyle: 'preserve-3d' }}>
-                   <div className={`absolute transition-transform duration-300 ${isSelected ? 'scale-125 -translate-y-6 z-50' : 'group-hover:scale-110 group-hover:-translate-y-2'}`} style={{ transform: 'rotateZ(-45deg) rotateX(-60deg) translate(-50%, -85%)', transformStyle: 'preserve-3d' }}>
+                   <div className={`absolute w-[48px] h-[72px] transition-transform duration-300 ${isSelected ? 'scale-125 -translate-y-6 z-50' : 'group-hover:scale-110 group-hover:-translate-y-2'}`} style={{ transform: 'rotateZ(-45deg) rotateX(-60deg) translate(-50%, -85%)', transformStyle: 'preserve-3d' }}>
                      <ChibiAvatar 
                        config={user.avatarConfig} 
                        size={48} 
@@ -736,6 +759,7 @@
                         effStatus === 'field' ? <MapPin size={12} className="text-emerald-600" /> :
                         effStatus === 'leave' ? <Plane size={12} className="text-sky-400" /> :
                         effStatus === 'sick' ? <Bed size={12} className="text-rose-500" /> :
+                        effStatus === 'event' ? <Music size={12} className="text-pink-500" /> :
                         effStatus === 'mia' ? <UserX size={12} className="text-rose-500" /> :
                         effStatus === 'break' ? <Coffee size={12} className="text-orange-500" /> :
                         <Briefcase size={12} className="text-slate-700" />}
@@ -954,7 +978,8 @@
 
       const breakUsers = directory.filter(k => getEffectiveStatus(k) === 'break');
       const sickUsers = directory.filter(k => getEffectiveStatus(k) === 'sick');
-      const activeUsers = directory.filter(k => !['break', 'sick'].includes(getEffectiveStatus(k)));
+      const eventUsers = directory.filter(k => getEffectiveStatus(k) === 'event');
+      const activeUsers = directory.filter(k => !['break', 'sick', 'event'].includes(getEffectiveStatus(k)));
 
       return (
         <div className="w-full h-full overflow-hidden cursor-move touch-none relative select-none bg-sky-200" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerLeave={onPointerUp}>
@@ -983,6 +1008,11 @@
                {/* Map Users Having a Break into the Pantry */}
                {breakUsers.map((u, i) => (
                   <FreeAvatar key={u.uid} user={u} x={27 + (i % 4) * 2} y={22 + Math.floor(i / 4) * 2} effStatus="break" onSelectUser={onSelectUser} isSelected={selectedUserId === u.uid} />
+               ))}
+
+               {/* Map Event Users into the Event Place */}
+               {eventUsers.map((u, i) => (
+                  <FreeAvatar key={u.uid} user={u} x={4 + (i % 8) * 1.5} y={44.5 + Math.floor(i / 8) * 1.5} effStatus="event" onSelectUser={onSelectUser} isSelected={selectedUserId === u.uid} />
                ))}
 
                {/* Map Sick Users onto Clinic Beds */}
@@ -1028,6 +1058,7 @@
       const hasUnsavedChangesRef = useRef(false);
       const [pendingNavView, setPendingNavView] = useState(null);
       const [showSaveConfirm, setShowSaveConfirm] = useState(false);
+      const [pendingTimeAction, setPendingTimeAction] = useState(null);
 
       // --- New Chat States ---
       const [isChatOpen, setIsChatOpen] = useState(false);
@@ -1281,6 +1312,16 @@
         setShowSaveConfirm(true);
       };
 
+      const logTimeAction = async (actionType, details = null) => {
+        if (!user) return;
+        await addDoc(collection(db, 'artifacts', appIdString, 'public', 'data', 'timeLogs'), {
+          userId: user.uid,
+          action: actionType,
+          details: details,
+          timestamp: serverTimestamp()
+        });
+      };
+
       const handleQuickStatusUpdate = async (field, value) => {
         if (!user) return;
         const userRef = doc(db, 'artifacts', appIdString, 'public', 'data', 'profiles', user.uid);
@@ -1289,6 +1330,15 @@
             [field]: value,
             updatedAt: serverTimestamp()
           });
+          
+          if (field === 'workStatus') {
+            const statusLabel = WORK_STATUSES.find(s => s.id === value)?.label || value;
+            await logTimeAction('STATUS_UPDATE', statusLabel);
+          } else if (field === 'activeProject') {
+            const projName = projects.find(p => p.id === value)?.name || 'None / Open Work';
+            await logTimeAction('PROJECT_UPDATE', projName);
+          }
+
           setToastMessage("Status Updated!");
           setTimeout(() => setToastMessage(""), 2000);
         } catch (error) {
@@ -1296,49 +1346,39 @@
         }
       };
 
-      const logTimeAction = async (actionType) => {
-        if (!user) return;
-        await addDoc(collection(db, 'artifacts', appIdString, 'public', 'data', 'timeLogs'), {
-          userId: user.uid,
-          action: actionType,
-          timestamp: serverTimestamp()
-        });
+      const requestTimeAction = (actionStr) => {
+        setPendingTimeAction(actionStr);
       };
 
-      const handleTimeToggle = async (timingIn) => {
-        if (!user) return;
+      const executePendingTimeAction = async () => {
+        if (!user || !pendingTimeAction) return;
         const userRef = doc(db, 'artifacts', appIdString, 'public', 'data', 'profiles', user.uid);
+        
         try {
-          await updateDoc(userRef, {
-            isTimedIn: timingIn,
-            isOnBreak: false,
-            [timingIn ? 'lastTimeIn' : 'lastTimeOut']: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          });
-          await logTimeAction(timingIn ? 'TIME_IN' : 'TIME_OUT');
-          setToastMessage(timingIn ? "Timed In Successfully!" : "Timed Out Successfully!");
-          setTimeout(() => setToastMessage(""), 3000);
+          if (pendingTimeAction === 'TIME_IN' || pendingTimeAction === 'TIME_OUT') {
+            const timingIn = pendingTimeAction === 'TIME_IN';
+            await updateDoc(userRef, {
+              isTimedIn: timingIn,
+              isOnBreak: false,
+              [timingIn ? 'lastTimeIn' : 'lastTimeOut']: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+            await logTimeAction(pendingTimeAction);
+            setToastMessage(timingIn ? "Timed In Successfully!" : "Timed Out Successfully!");
+          } else if (pendingTimeAction === 'BREAK_START' || pendingTimeAction === 'BREAK_END') {
+            const goingOnBreak = pendingTimeAction === 'BREAK_START';
+            await updateDoc(userRef, {
+              isOnBreak: goingOnBreak,
+              updatedAt: serverTimestamp()
+            });
+            await logTimeAction(pendingTimeAction);
+            setToastMessage(goingOnBreak ? "Break Started" : "Break Ended");
+          }
         } catch (error) {
           console.error(error);
-          setToastMessage("Error updating time.");
-          setTimeout(() => setToastMessage(""), 3000);
+          setToastMessage("Action failed.");
         }
-      };
-
-      const handleBreakToggle = async (goingOnBreak) => {
-        if (!user) return;
-        const userRef = doc(db, 'artifacts', appIdString, 'public', 'data', 'profiles', user.uid);
-        try {
-          await updateDoc(userRef, {
-            isOnBreak: goingOnBreak,
-            updatedAt: serverTimestamp()
-          });
-          await logTimeAction(goingOnBreak ? 'BREAK_START' : 'BREAK_END');
-          setToastMessage(goingOnBreak ? "Break Started" : "Break Ended");
-          setTimeout(() => setToastMessage(""), 3000);
-        } catch (error) {
-          console.error(error);
-        }
+        setPendingTimeAction(null);
       };
 
       const handleCreateProject = async (e) => {
@@ -1539,6 +1579,17 @@
               0% { filter: drop-shadow(0px -1px 0px #fca5a5) drop-shadow(0px 1px 0px #fca5a5) drop-shadow(1px 0px 0px #fca5a5) drop-shadow(-1px 0px 0px #fca5a5) drop-shadow(0 0 5px #ef4444); }
               100% { filter: drop-shadow(0px -1.5px 0px #fb7185) drop-shadow(0px 1.5px 0px #fb7185) drop-shadow(1.5px 0px 0px #fb7185) drop-shadow(-1.5px 0px 0px #fb7185) drop-shadow(0 0 15px #e11d48); }
             }
+
+            @keyframes avatar-dance {
+              0%, 100% { transform: translateY(0px) scaleX(1); }
+              25% { transform: translateY(-4px) scaleX(0.95) rotate(-3deg); }
+              50% { transform: translateY(0px) scaleX(1); }
+              75% { transform: translateY(-4px) scaleX(0.95) rotate(3deg); }
+            }
+            .dancing-avatar {
+              animation: avatar-dance 0.5s ease-in-out infinite;
+              transform-origin: bottom center;
+            }
             
             .ghost-avatar {
               opacity: 0.45;
@@ -1697,6 +1748,8 @@
                        const statusObj = WORK_STATUSES.find(s => s.id === effStatus) || WORK_STATUSES[0];
                        const StatusIcon = statusObj.icon;
                        const proj = projects.find(p => p.id === selUser.activeProject);
+                       const isMe = selUser.uid === user?.uid;
+
                        return (
                          <div className="flex flex-col items-center text-center">
                            <div className="w-28 h-28 rounded-[2rem] bg-indigo-50 flex items-center justify-center mb-4 border-4 border-white shadow-inner overflow-hidden relative">
@@ -1705,20 +1758,66 @@
                            <h3 className="text-xl font-black text-slate-800">{selUser.displayName || 'Kin Member'}</h3>
                            <p className="text-indigo-600 font-black uppercase text-[10px] tracking-widest mt-1 mb-6">{DEPT_NAMES_LOOKUP[selUser.dept] || 'Explorer'}</p>
                            
+                           {isMe && (
+                             <div className="w-full flex gap-2 mb-6">
+                               {selUser?.isTimedIn ? (
+                                  <>
+                                    {selUser?.isOnBreak ? (
+                                      <button onClick={() => requestTimeAction('BREAK_END')} className="flex-1 py-3 bg-blue-500 text-white font-black rounded-xl shadow-sm hover:bg-blue-400 transition-colors flex justify-center items-center gap-2 uppercase tracking-widest text-[10px]">
+                                         <Play size={14} /> Resume
+                                      </button>
+                                    ) : (
+                                      <button onClick={() => requestTimeAction('BREAK_START')} className="flex-1 py-3 bg-orange-500 text-white font-black rounded-xl shadow-sm hover:bg-orange-400 transition-colors flex justify-center items-center gap-2 uppercase tracking-widest text-[10px]">
+                                         <Pause size={14} /> Pause
+                                      </button>
+                                    )}
+                                    <button onClick={() => requestTimeAction('TIME_OUT')} className="flex-1 py-3 bg-rose-500 text-white font-black rounded-xl shadow-sm hover:bg-rose-400 transition-colors flex justify-center items-center gap-2 uppercase tracking-widest text-[10px]">
+                                       <LogOut size={14} /> Time Out
+                                    </button>
+                                  </>
+                               ) : (
+                                  <button onClick={() => requestTimeAction('TIME_IN')} className="w-full py-3 bg-emerald-500 text-white font-black rounded-xl shadow-sm hover:bg-emerald-400 transition-colors flex justify-center items-center gap-2 uppercase tracking-widest text-[10px]">
+                                     <Play size={14} /> Time In
+                                  </button>
+                               )}
+                             </div>
+                           )}
+
                            <div className="w-full bg-slate-50 rounded-3xl p-5 mb-6 space-y-4 text-left border border-slate-100 shadow-inner">
                              <div className="flex items-center gap-3">
                                <div className="p-2.5 bg-white rounded-xl shadow-sm border border-slate-100"><StatusIcon size={16} className={effStatus === 'mia' ? 'text-rose-500' : effStatus === 'break' ? 'text-orange-500' : 'text-indigo-600'} /></div>
-                               <div>
+                               <div className="w-full">
                                  <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Current Status</p>
-                                 <p className="text-xs font-bold text-slate-700">{statusObj.label}</p>
+                                 {isMe ? (
+                                    <select 
+                                      value={selUser.workStatus || 'office'} 
+                                      onChange={e => handleQuickStatusUpdate('workStatus', e.target.value)} 
+                                      className="bg-transparent text-xs font-bold text-slate-700 outline-none cursor-pointer w-full"
+                                    >
+                                      {WORK_STATUSES.filter(s => s.selectable).map(s => (<option key={s.id} value={s.id}>{s.label}</option>))}
+                                    </select>
+                                 ) : (
+                                    <p className="text-xs font-bold text-slate-700">{statusObj.label}</p>
+                                 )}
                                </div>
                              </div>
-                             {proj && (
+                             {(proj || isMe) && (
                                <div className="flex items-center gap-3 pt-4 border-t border-slate-200">
                                  <div className="p-2.5 bg-white rounded-xl shadow-sm border border-slate-100"><FolderKanban size={16} className="text-indigo-600" /></div>
-                                 <div className="overflow-hidden">
+                                 <div className="overflow-hidden w-full">
                                    <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Working On</p>
-                                   <p className="text-xs font-bold text-slate-700 truncate w-40">{proj.name}</p>
+                                   {isMe ? (
+                                      <select 
+                                        value={selUser.activeProject || ''} 
+                                        onChange={e => handleQuickStatusUpdate('activeProject', e.target.value)} 
+                                        className="bg-transparent text-xs font-bold text-slate-700 outline-none cursor-pointer w-full truncate"
+                                      >
+                                        <option value="">None / Open Work</option>
+                                        {projects.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
+                                      </select>
+                                   ) : (
+                                      <p className="text-xs font-bold text-slate-700 truncate w-40">{proj ? proj.name : 'None'}</p>
+                                   )}
                                  </div>
                                </div>
                              )}
@@ -1919,6 +2018,10 @@
                                     IconComp = Pause; iconColor = "text-orange-500"; bg = "bg-orange-50 border-orange-200"; actionText = "Started Break"; break;
                                   case 'BREAK_END':
                                     IconComp = Play; iconColor = "text-blue-500"; bg = "bg-blue-50 border-blue-200"; actionText = "Ended Break"; break;
+                                  case 'STATUS_UPDATE':
+                                    IconComp = Briefcase; iconColor = "text-indigo-500"; bg = "bg-indigo-50 border-indigo-200"; actionText = `Status: ${log.details || 'Updated'}`; break;
+                                  case 'PROJECT_UPDATE':
+                                    IconComp = FolderKanban; iconColor = "text-indigo-500"; bg = "bg-indigo-50 border-indigo-200"; actionText = `Project: ${log.details || 'Updated'}`; break;
                                   default:
                                     IconComp = Clock; iconColor = "text-slate-500"; bg = "bg-slate-50 border-slate-200"; actionText = "Activity Logged";
                                 }
@@ -1983,20 +2086,20 @@
                            {userProfile?.isTimedIn ? (
                               <>
                                 {userProfile?.isOnBreak ? (
-                                  <button onClick={() => handleBreakToggle(false)} className="flex-1 py-4 bg-blue-500 text-white font-black rounded-2xl shadow-md hover:bg-blue-400 transition-colors flex justify-center items-center gap-2 uppercase tracking-widest text-xs">
+                                  <button onClick={() => requestTimeAction('BREAK_END')} className="flex-1 py-4 bg-blue-500 text-white font-black rounded-2xl shadow-md hover:bg-blue-400 transition-colors flex justify-center items-center gap-2 uppercase tracking-widest text-xs">
                                      <Play size={16} /> Resume Work
                                   </button>
                                 ) : (
-                                  <button onClick={() => handleBreakToggle(true)} className="flex-1 py-4 bg-orange-500 text-white font-black rounded-2xl shadow-md hover:bg-orange-400 transition-colors flex justify-center items-center gap-2 uppercase tracking-widest text-xs">
+                                  <button onClick={() => requestTimeAction('BREAK_START')} className="flex-1 py-4 bg-orange-500 text-white font-black rounded-2xl shadow-md hover:bg-orange-400 transition-colors flex justify-center items-center gap-2 uppercase tracking-widest text-xs">
                                      <Pause size={16} /> Pause for Break
                                   </button>
                                 )}
-                                <button onClick={() => handleTimeToggle(false)} className="flex-1 py-4 bg-rose-500 text-white font-black rounded-2xl shadow-md hover:bg-rose-400 transition-colors flex justify-center items-center gap-2 uppercase tracking-widest text-xs">
+                                <button onClick={() => requestTimeAction('TIME_OUT')} className="flex-1 py-4 bg-rose-500 text-white font-black rounded-2xl shadow-md hover:bg-rose-400 transition-colors flex justify-center items-center gap-2 uppercase tracking-widest text-xs">
                                    <LogOut size={16} /> Time Out
                                 </button>
                               </>
                            ) : (
-                              <button onClick={() => handleTimeToggle(true)} className="w-full py-4 bg-emerald-500 text-white font-black rounded-2xl shadow-md hover:bg-emerald-400 transition-colors flex justify-center items-center gap-2 uppercase tracking-widest text-xs">
+                              <button onClick={() => requestTimeAction('TIME_IN')} className="w-full py-4 bg-emerald-500 text-white font-black rounded-2xl shadow-md hover:bg-emerald-400 transition-colors flex justify-center items-center gap-2 uppercase tracking-widest text-xs">
                                  <Play size={16} /> Time In
                               </button>
                            )}
@@ -2173,6 +2276,41 @@
                   <div className="flex gap-4">
                     <button onClick={() => setShowSaveConfirm(false)} className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-colors">Cancel</button>
                     <button onClick={executeSaveProfile} className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-indigo-500 transition-colors">Confirm</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Time Action Confirmation Modal */}
+            {pendingTimeAction && (
+              <div className="absolute inset-0 z-[110] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => setPendingTimeAction(null)}>
+                <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 max-w-sm w-full animate-in zoom-in-95 text-center" onClick={e => e.stopPropagation()}>
+                  <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-inner ${
+                      pendingTimeAction === 'TIME_IN' ? 'bg-emerald-50 text-emerald-500' :
+                      pendingTimeAction === 'TIME_OUT' ? 'bg-rose-50 text-rose-500' :
+                      pendingTimeAction === 'BREAK_START' ? 'bg-orange-50 text-orange-500' :
+                      'bg-blue-50 text-blue-500'
+                  }`}>
+                    {pendingTimeAction === 'TIME_IN' && <Play size={24} />}
+                    {pendingTimeAction === 'TIME_OUT' && <LogOut size={24} />}
+                    {pendingTimeAction === 'BREAK_START' && <Pause size={24} />}
+                    {pendingTimeAction === 'BREAK_END' && <Play size={24} />}
+                  </div>
+                  <h3 className="text-2xl font-black text-slate-800 mb-2">Confirm Action</h3>
+                  <p className="text-xs font-bold text-slate-500 mb-8 uppercase tracking-widest">
+                    {pendingTimeAction === 'TIME_IN' && "Are you sure you want to Time In?"}
+                    {pendingTimeAction === 'TIME_OUT' && "Are you sure you want to Time Out?"}
+                    {pendingTimeAction === 'BREAK_START' && "Are you sure you want to take a break?"}
+                    {pendingTimeAction === 'BREAK_END' && "Ready to resume work?"}
+                  </p>
+                  <div className="flex gap-4">
+                    <button onClick={() => setPendingTimeAction(null)} className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-colors">Cancel</button>
+                    <button onClick={executePendingTimeAction} className={`flex-1 py-4 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg transition-colors ${
+                      pendingTimeAction === 'TIME_IN' ? 'bg-emerald-500 hover:bg-emerald-400' :
+                      pendingTimeAction === 'TIME_OUT' ? 'bg-rose-500 hover:bg-rose-400' :
+                      pendingTimeAction === 'BREAK_START' ? 'bg-orange-500 hover:bg-orange-400' :
+                      'bg-blue-500 hover:bg-blue-400'
+                    }`}>Confirm</button>
                   </div>
                 </div>
               </div>
