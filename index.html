@@ -49,6 +49,7 @@
       collection, 
       doc, 
       setDoc, 
+      getDoc,
       onSnapshot, 
       addDoc, 
       serverTimestamp,
@@ -982,8 +983,45 @@
         initAuth();
         const unsubscribe = onAuthStateChanged(auth, async (u) => {
           if (u) {
+            // Guard to prevent creating profiles for unauthorized domains during the brief window before signOut completes
+            if (u.email && !u.email.endsWith('@inventi.ph') && !u.email.endsWith('@inventi.asia')) {
+              return;
+            }
+
             const userRef = doc(db, 'artifacts', appIdString, 'public', 'data', 'profiles', u.uid);
-            await setDoc(userRef, { uid: u.uid, lastSeen: serverTimestamp() }, { merge: true });
+            const docSnap = await getDoc(userRef);
+            
+            let isNewUser = false;
+            
+            // If the document doesn't exist or has no displayName, it's a first-time setup
+            if (!docSnap.exists() || !docSnap.data().displayName) {
+              isNewUser = true;
+              const docData = docSnap.data() || {};
+              const resolvedEmail = u.email || docData.email || '';
+              const defaultName = resolvedEmail ? resolvedEmail.split('@')[0] : 'KinMember';
+              
+              const defaultAvatar = {
+                skin: '#ffcbab', topColor: '#3b82f6', hairColor: '#475569', bottomColor: '#1e293b', shoeColor: '#0f172a',
+                bodyType: 'Standard', head: 'Round', hair: 'Short', eyes: 'Basic', eyebrows: 'Standard', mouth: 'Smile',
+                top: 'Tee', bottom: 'Jeans', shoes: 'Sneakers', accessory: 'None'
+              };
+
+              await setDoc(userRef, { 
+                uid: u.uid, 
+                email: resolvedEmail,
+                displayName: defaultName,
+                avatarConfig: docData.avatarConfig || defaultAvatar,
+                lastSeen: serverTimestamp() 
+              }, { merge: true });
+              
+              // Force the view to profile for new users
+              setView('profile');
+              setToastMessage("Welcome! Please set up your avatar.");
+              setTimeout(() => setToastMessage(""), 4000);
+            } else {
+              await setDoc(userRef, { uid: u.uid, lastSeen: serverTimestamp() }, { merge: true });
+            }
+
             setUser(u);
           } else { 
             setUser(null); 
