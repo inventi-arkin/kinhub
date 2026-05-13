@@ -129,13 +129,12 @@
     const appInstance = initializeApp(firebaseConfig);
     const auth = getAuth(appInstance);
     const db = getFirestore(appInstance);
-    // Graceful fallback for non-sandbox environments like GitHub Pages
     const appIdString = typeof __app_id !== 'undefined' ? __app_id : 'kinhub-c8432-master';
 
     // --- Global Configuration ---
     const TILE = 40; 
-    const MAP_W = 34; 
-    const MAP_H = 35; 
+    const MAP_W = 46; 
+    const MAP_H = 48; 
 
     const PATTERNS = {
       wood: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40'%3E%3Crect width='80' height='40' fill='%23dcb68a'/%3E%3Cpath d='M0,10 H80 M0,20 H80 M0,30 H80 M40,0 V10 M20,10 V20 M60,20 V30 M30,30 V40' stroke='%23c79b6d' stroke-width='2'/%3E%3C/svg%3E")`,
@@ -162,92 +161,159 @@
     };
 
     const FULL_ROOMS = [
-      { id: 'ceo_cube', name: 'CEO Office', x: 2, y: 0, w: 4, h: 5.5, bg: PATTERNS.wood, slots: [{x: 3, y: 1.5, dir: 180, isExec: true}] },
-      { id: 'cto_cube', name: 'CTO Office', x: 6, y: 0, w: 4, h: 5.5, bg: PATTERNS.wood, slots: [{x: 7, y: 1.5, dir: 180, isExec: true}] },
-      { id: 'cfo_cube', name: 'CFO Office', x: 10, y: 0, w: 4, h: 5.5, bg: PATTERNS.wood, slots: [{x: 11, y: 1.5, dir: 180, isExec: true}] },
-      { id: 'dev', name: 'Developer Dept', x: 0, y: 8, w: 14, h: 7, bg: PATTERNS.carpetDark, slots: [{x: 1.5, y: 9.5, dir: 180}, {x: 5.5, y: 9.5, dir: 180}, {x: 9.5, y: 9.5, dir: 180}, {x: 1.5, y: 12.5, dir: 0}, {x: 5.5, y: 12.5, dir: 0}, {x: 9.5, y: 12.5, dir: 0}] },
-      { id: 'ba', name: 'Business Analyst', x: 0, y: 15, w: 7, h: 6, bg: PATTERNS.carpetGrey, slots: [{x: 1.5, y: 16.5, dir: 180}, {x: 4.5, y: 16.5, dir: 180}, {x: 1.5, y: 18.5, dir: 0}, {x: 4.5, y: 18.5, dir: 0}] },
-      { id: 'qa', name: 'Quality Analyst', x: 7, y: 15, w: 7, h: 6, bg: PATTERNS.carpetGrey, slots: [{x: 8.5, y: 16.5, dir: 180}, {x: 11.5, y: 16.5, dir: 180}, {x: 8.5, y: 18.5, dir: 0}, {x: 11.5, y: 18.5, dir: 0}] },
-      { id: 'pm', name: 'Project Management', x: 0, y: 21, w: 8, h: 7, bg: PATTERNS.carpetDark, slots: [{x: 1.5, y: 22.5, dir: 180}, {x: 5.5, y: 22.5, dir: 180}, {x: 1.5, y: 25.5, dir: 0}, {x: 5.5, y: 25.5, dir: 0}] },
-      { id: 'ui', name: 'User Interface', x: 8, y: 21, w: 6, h: 7, bg: PATTERNS.carpetBlue, slots: [{x: 10, y: 22.5, dir: 180}, {x: 10, y: 25.5, dir: 0}] },
-      { id: 'events', name: 'Event Place', x: 0, y: 28, w: 12, h: 7, bg: PATTERNS.wood, slots: [] },
-      { id: 'hall', name: 'Central Hallway', x: 14, y: 0, w: 6, h: 28, bg: PATTERNS.tile, slots: [] },
-      { id: 'reception', name: 'Inventi Reception', x: 12, y: 28, w: 10, h: 7, bg: PATTERNS.tile, slots: [] },
-      { id: 'ops', name: 'Operations', x: 20, y: 0, w: 14, h: 8, bg: PATTERNS.carpetGrey, slots: [{x: 21.5, y: 1.5, dir: 180}, {x: 25.5, y: 1.5, dir: 180}, {x: 29.5, y: 1.5, dir: 180}, {x: 21.5, y: 5.5, dir: 0}, {x: 25.5, y: 5.5, dir: 0}, {x: 29.5, y: 5.5, dir: 0}] },
-      { id: 'sales', name: 'Sales Department', x: 20, y: 8, w: 14, h: 7, bg: PATTERNS.carpetDark, slots: [{x: 22.5, y: 9.5, dir: 180}, {x: 27.5, y: 9.5, dir: 180}, {x: 22.5, y: 12.5, dir: 0}, {x: 27.5, y: 12.5, dir: 0}] },
-      { id: 'cs', name: 'Customer Support', x: 20, y: 15, w: 8, h: 6, bg: PATTERNS.carpetGrey, slots: [{x: 21.5, y: 16.5, dir: 180}, {x: 24.5, y: 16.5, dir: 180}, {x: 21.5, y: 18.5, dir: 0}, {x: 24.5, y: 18.5, dir: 0}] },
-      { id: 'mktg', name: 'Marketing Dept', x: 28, y: 15, w: 6, h: 6, bg: PATTERNS.carpetBlue, slots: [{x: 29.5, y: 16.5, dir: 180}, {x: 29.5, y: 18.5, dir: 0}] },
-      { id: 'pantry', name: 'Breakout Room', x: 20, y: 21, w: 10, h: 7, bg: PATTERNS.wood, slots: [] },
-      { id: 'wash', name: 'Washrooms', x: 30, y: 21, w: 4, h: 7, bg: PATTERNS.tile, slots: [] },
-      { id: 'hr', name: 'HR Department', x: 22, y: 28, w: 12, h: 7, bg: PATTERNS.carpetGrey, slots: [{x: 23.5, y: 29.5, dir: 180}, {x: 28.5, y: 29.5, dir: 180}, {x: 23.5, y: 32.5, dir: 0}, {x: 28.5, y: 32.5, dir: 0}] },
-      { id: 'clinic', name: 'Company Clinic', x: 30, y: 28, w: 4, h: 7, bg: PATTERNS.tile, slots: [] }
+      { id: 'ceo_cube', name: 'CEO Office', x: 0, y: 0, w: 6, h: 6, bg: PATTERNS.wood, slots: [{x: 2.5, y: 2, dir: 180, isExec: true}] },
+      { id: 'cto_cube', name: 'CTO Office', x: 6, y: 0, w: 7, h: 6, bg: PATTERNS.wood, slots: [{x: 8.5, y: 2, dir: 180, isExec: true}] },
+      { id: 'cfo_cube', name: 'CFO Office', x: 13, y: 0, w: 7, h: 6, bg: PATTERNS.wood, slots: [{x: 15.5, y: 2, dir: 180, isExec: true}] },
+      { id: 'exec_hall', name: 'Executive Hallway', x: 0, y: 6, w: 20, h: 2, bg: PATTERNS.tile, slots: [] },
+      
+      { id: 'dev', name: 'Developer Dept', x: 0, y: 8, w: 20, h: 12, bg: PATTERNS.carpetDark, slots: [
+        {x: 2, y: 11, dir: 180}, {x: 5.5, y: 11, dir: 180}, {x: 9, y: 11, dir: 180}, {x: 12.5, y: 11, dir: 180}, {x: 16, y: 11, dir: 180},
+        {x: 2, y: 16, dir: 0}, {x: 5.5, y: 16, dir: 0}, {x: 9, y: 16, dir: 0}, {x: 12.5, y: 16, dir: 0}, {x: 16, y: 16, dir: 0}
+      ] },
+      
+      { id: 'ba', name: 'Business Analyst', x: 0, y: 20, w: 8, h: 10, bg: PATTERNS.carpetGrey, slots: [
+        {x: 1.5, y: 21.5, dir: 180}, {x: 4.5, y: 21.5, dir: 180}, 
+        {x: 1.5, y: 24.5, dir: 0}, {x: 4.5, y: 24.5, dir: 0},
+        {x: 1.5, y: 27.5, dir: 180}, {x: 4.5, y: 27.5, dir: 180}
+      ] },
+      { id: 'qa', name: 'Quality Analyst', x: 8, y: 20, w: 12, h: 10, bg: PATTERNS.carpetGrey, slots: [
+        {x: 8.5, y: 22.5, dir: 180}, {x: 10.7, y: 22.5, dir: 180}, {x: 12.9, y: 22.5, dir: 180}, {x: 15.1, y: 22.5, dir: 180}, {x: 17.3, y: 22.5, dir: 180},
+        {x: 8.5, y: 26.5, dir: 0}, {x: 10.7, y: 26.5, dir: 0}, {x: 12.9, y: 26.5, dir: 0}, {x: 15.1, y: 26.5, dir: 0}, {x: 17.3, y: 26.5, dir: 0}
+      ] },
+      
+      { id: 'pm', name: 'Project Management', x: 0, y: 30, w: 10, h: 8, bg: PATTERNS.carpetDark, slots: [
+        {x: 1.5, y: 32, dir: 180}, {x: 4.5, y: 32, dir: 180}, {x: 7.5, y: 32, dir: 180},
+        {x: 1.5, y: 35, dir: 0}, {x: 4.5, y: 35, dir: 0}, {x: 7.5, y: 35, dir: 0}
+      ] },
+      { id: 'ui', name: 'User Interface', x: 10, y: 30, w: 10, h: 8, bg: PATTERNS.carpetBlue, slots: [{x: 12, y: 34, dir: 180}, {x: 16, y: 34, dir: 180}] },
+      
+      { id: 'events', name: 'Event Place', x: 0, y: 38, w: 20, h: 10, bg: PATTERNS.wood, slots: [] },
+      
+      { id: 'hall', name: 'Central Hallway', x: 20, y: 0, w: 6, h: 48, bg: PATTERNS.tile, slots: [] },
+      
+      { id: 'ops', name: 'Operations', x: 26, y: 0, w: 10, h: 10, bg: PATTERNS.carpetGrey, slots: [{x: 28, y: 4, dir: 180}, {x: 32, y: 4, dir: 180}] },
+      { id: 'sales', name: 'Sales Department', x: 36, y: 0, w: 10, h: 10, bg: PATTERNS.carpetDark, slots: [{x: 38, y: 4, dir: 180}, {x: 42, y: 4, dir: 180}] },
+      
+      { id: 'cs', name: 'Customer Support', x: 26, y: 10, w: 10, h: 10, bg: PATTERNS.carpetGrey, slots: [{x: 28, y: 14, dir: 180}, {x: 32, y: 14, dir: 180}] },
+      { id: 'mktg', name: 'Marketing Dept', x: 36, y: 10, w: 10, h: 10, bg: PATTERNS.carpetBlue, slots: [{x: 38, y: 14, dir: 180}, {x: 42, y: 14, dir: 180}] },
+      
+      { id: 'pantry', name: 'Breakout Room', x: 26, y: 20, w: 12, h: 10, bg: PATTERNS.wood, slots: [] },
+      { id: 'clinic', name: 'Company Clinic', x: 38, y: 20, w: 8, h: 10, bg: PATTERNS.tile, slots: [] },
+      
+      { id: 'hr', name: 'HR Department', x: 26, y: 30, w: 20, h: 8, bg: PATTERNS.carpetGrey, slots: [{x: 30, y: 32, dir: 180}, {x: 40, y: 32, dir: 180}] },
+      
+      { id: 'reception', name: 'Inventi Reception', x: 26, y: 38, w: 12, h: 10, bg: PATTERNS.tile, slots: [] },
+      { id: 'wash', name: 'Washrooms', x: 38, y: 38, w: 8, h: 10, bg: PATTERNS.tile, slots: [] }
     ];
 
     const FULL_WALLS = [
-      { x: 0, y: 0, w: 34, h: 0.4, type: 'outer' }, { x: 0, y: 0, w: 0.4, h: 35, type: 'outer' }, { x: 33.6, y: 0, w: 0.4, h: 35, type: 'outer' }, 
-      { x: 0, y: 34.6, w: 14, h: 0.4, type: 'outer' }, { x: 20, y: 34.6, w: 14, h: 0.4, type: 'outer' }, 
-      { x: 14, y: 34.6, w: 2, h: 0.4, type: 'glass' }, { x: 18, y: 34.6, w: 2, h: 0.4, type: 'glass' }, 
-      { x: 0, y: 8, w: 14, h: 0.4, type: 'glass' }, { x: 0, y: 15, w: 14, h: 0.4, type: 'solid' }, 
-      { x: 0, y: 21, w: 14, h: 0.4, type: 'solid' }, { x: 0, y: 28, w: 14, h: 0.4, type: 'glass' },
-      { x: 8, y: 21, w: 0.4, h: 3, type: 'solid' }, { x: 8, y: 25, w: 0.4, h: 3, type: 'solid' },
-      { x: 7, y: 15, w: 0.4, h: 2, type: 'glass' }, { x: 7, y: 18, w: 0.4, h: 3, type: 'glass' },
-      { x: 2, y: 0, w: 0.1, h: 5, type: 'glass' }, { x: 6, y: 0, w: 0.1, h: 5, type: 'glass' }, { x: 10, y: 0, w: 0.1, h: 5, type: 'glass' }, 
-      { x: 2, y: 5, w: 2, h: 0.1, type: 'glass' }, { x: 5, y: 5, w: 3, h: 0.1, type: 'glass' }, { x: 9, y: 5, w: 3, h: 0.1, type: 'glass' }, { x: 13, y: 5, w: 1, h: 0.1, type: 'glass' },
-      { x: 20, y: 8, w: 14, h: 0.4, type: 'glass' }, 
-      { x: 20, y: 15, w: 9, h: 0.4, type: 'solid' }, { x: 30, y: 15, w: 4, h: 0.4, type: 'solid' }, 
-      { x: 20, y: 21, w: 14, h: 0.4, type: 'solid' }, { x: 20, y: 28, w: 14, h: 0.4, type: 'glass' }, 
-      { x: 30, y: 21, w: 0.4, h: 7, type: 'solid' }, { x: 28, y: 15, w: 0.4, h: 6, type: 'solid' }, 
-      { x: 30, y: 28, w: 0.4, h: 7, type: 'solid' }, 
-      { x: 14, y: 0, w: 0.4, h: 5, type: 'solid' }, { x: 14, y: 6, w: 0.4, h: 6, type: 'solid' }, { x: 14, y: 13, w: 0.4, h: 6, type: 'solid' }, { x: 14, y: 20, w: 0.4, h: 6, type: 'solid' }, { x: 14, y: 27, w: 0.4, h: 1, type: 'solid' },
-      { x: 20, y: 0, w: 0.4, h: 5, type: 'solid' }, { x: 20, y: 6, w: 0.4, h: 6, type: 'solid' }, { x: 20, y: 13, w: 0.4, h: 6, type: 'solid' }, { x: 20, y: 20, w: 0.4, h: 5, type: 'solid' }, { x: 20, y: 26, w: 0.4, h: 2, type: 'solid' },
-      { x: 12, y: 28, w: 0.4, h: 7, type: 'solid' }, { x: 22, y: 28, w: 0.4, h: 3, type: 'solid' }, { x: 22, y: 32, w: 0.4, h: 3, type: 'solid' }
+      // Outer Perimeter
+      { x: 0, y: 0, w: 46, h: 0.4, type: 'outer' }, { x: 0, y: 0, w: 0.4, h: 48, type: 'outer' }, { x: 45.6, y: 0, w: 0.4, h: 48, type: 'outer' }, 
+      { x: 0, y: 47.6, w: 20, h: 0.4, type: 'outer' }, { x: 26, y: 47.6, w: 20, h: 0.4, type: 'outer' }, 
+      { x: 20, y: 47.6, w: 2, h: 0.4, type: 'glass' }, { x: 24, y: 47.6, w: 2, h: 0.4, type: 'glass' }, 
+
+      // Left Horizontals
+      { x: 0, y: 6, w: 4, h: 0.4, type: 'glass' }, { x: 5, y: 6, w: 5, h: 0.4, type: 'glass' }, { x: 11, y: 6, w: 6, h: 0.4, type: 'glass' }, { x: 18, y: 6, w: 2, h: 0.4, type: 'glass' }, // Exec front
+      { x: 0, y: 8, w: 20, h: 0.4, type: 'glass' }, 
+      { x: 0, y: 20, w: 20, h: 0.4, type: 'solid' },
+      { x: 0, y: 30, w: 20, h: 0.4, type: 'solid' },
+      { x: 0, y: 38, w: 20, h: 0.4, type: 'glass' },
+      
+      // Right Horizontals
+      { x: 26, y: 10, w: 20, h: 0.4, type: 'solid' },
+      { x: 26, y: 20, w: 20, h: 0.4, type: 'solid' }, 
+      { x: 26, y: 30, w: 20, h: 0.4, type: 'solid' },
+      { x: 26, y: 38, w: 20, h: 0.4, type: 'solid' },
+
+      // Left Verticals
+      { x: 6, y: 0, w: 0.4, h: 6, type: 'solid' },
+      { x: 13, y: 0, w: 0.4, h: 6, type: 'solid' },
+      { x: 8, y: 20, w: 0.4, h: 10, type: 'solid' },
+      { x: 10, y: 30, w: 0.4, h: 8, type: 'solid' },
+      { x: 20, y: 0, w: 0.4, h: 48, type: 'solid' }, 
+      
+      // Right Verticals
+      { x: 36, y: 0, w: 0.4, h: 20, type: 'solid' }, 
+      { x: 38, y: 20, w: 0.4, h: 10, type: 'solid' },
+      { x: 38, y: 38, w: 0.4, h: 10, type: 'solid' },
+      { x: 26, y: 0, w: 0.4, h: 38, type: 'solid' } // Reception is perfectly open on its hallway side
     ];
 
     const FULL_PROPS = [
-      { x: 14, y: 5, type: 'doorV' }, { x: 14, y: 12, type: 'doorV' }, { x: 14, y: 19, type: 'doorV' }, { x: 14, y: 26, type: 'doorV' },
-      { x: 20, y: 5, type: 'doorV' }, { x: 20, y: 12, type: 'doorV' }, { x: 20, y: 19, type: 'doorV' }, { x: 20, y: 25, type: 'doorV' },
-      { x: 7, y: 17, type: 'doorV' }, { x: 8, y: 24, type: 'doorV' }, { x: 29, y: 15, type: 'doorH' }, { x: 22, y: 31, type: 'doorV' },
-      { x: 30, y: 31, type: 'doorV' }, 
-      { x: 30.5, y: 28.3, type: 'clinicBed', rot: 0 },
-      { x: 30.5, y: 30.6, type: 'clinicBed', rot: 0 },
-      { x: 30.5, y: 32.9, type: 'clinicBed', rot: 0 },
-      { x: 32.5, y: 28.3, type: 'clinicBed', rot: 0 },
-      { x: 32.5, y: 30.6, type: 'clinicBed', rot: 0 },
-      { x: 32.5, y: 32.9, type: 'clinicBed', rot: 0 },
-      { x: 16, y: 34.6, type: 'doorHDouble' }, { x: 4, y: 5, type: 'doorH' }, { x: 8, y: 5, type: 'doorH' }, { x: 12, y: 5, type: 'doorH' },
-      { x: 3.5, y: 4, type: 'chairProp', rot: 0 }, { x: 7.5, y: 4, type: 'chairProp', rot: 0 }, { x: 11.5, y: 4, type: 'chairProp', rot: 0 },
-      { x: 14, y: 29.2, type: 'receptionDesk' }, { x: 13, y: 33, type: 'sofa', rot: 0 }, { x: 17, y: 33, type: 'sofa', rot: 0 }, { x: 15.5, y: 33.2, type: 'coffeeTable' }, 
-      { x: 20.4, y: 21.4, type: 'sinkCounter' }, { x: 28, y: 21.4, type: 'fridge' }, { x: 26.5, y: 21.4, type: 'snackShelf' },
-      { x: 23, y: 24.5, type: 'pantryIsland' }, { x: 23.5, y: 26, type: 'stool', rot: 0 }, { x: 24.5, y: 26, type: 'stool', rot: 0 }, { x: 25.5, y: 26, type: 'stool', rot: 0 },
-      { x: 27, y: 25, type: 'breakroomTable' }, { x: 26.5, y: 24.5, type: 'chairProp', rot: 0 }, { x: 28.5, y: 24.5, type: 'chairProp', rot: 0 },
-      { x: 30, y: 24, type: 'toiletCubicle' }, { x: 30, y: 27, type: 'toiletCubicle' },
-      { x: 3, y: 30.5, type: 'longTable' }, 
-      { x: 3.5, y: 29.5, type: 'chairProp', rot: 0 }, { x: 4.8, y: 29.5, type: 'chairProp', rot: 0 }, { x: 6.1, y: 29.5, type: 'chairProp', rot: 0 },
-      { x: 3.5, y: 32.5, type: 'chairProp', rot: 180 }, { x: 4.8, y: 32.5, type: 'chairProp', rot: 180 }, { x: 6.1, y: 32.5, type: 'chairProp', rot: 180 },
-      { x: 1.5, y: 29, type: 'speaker', rot: 45 }, { x: 9.5, y: 29, type: 'speaker', rot: -45 }, 
-      { x: 6, y: 34.4, type: 'tvScreen', rot: 0 },
-      { x: 0.5, y: 30, type: 'whiteboard', rot: 90 }, { x: 10, y: 32, type: 'boxOpen', rot: 15 }, { x: 9.5, y: 33, type: 'boxClosed', rot: 0 },
-      { x: 0.5, y: 1, type: 'bookshelf', rot: 0 }, { x: 32.5, y: 1, type: 'bookshelf', rot: 0 }, { x: 32.5, y: 16, type: 'bookshelf', rot: 0 }, { x: 0.5, y: 15.5, type: 'bookshelf', rot: 0 },
-      { x: 12.5, y: 1, type: 'plant' }, { x: 20.5, y: 1, type: 'plant' }, { x: 12.5, y: 21, type: 'plant' }, { x: 20.5, y: 21, type: 'plant' }, { x: 11, y: 28.5, type: 'plant' }, { x: 32.5, y: 33.5, type: 'plant' },
-      { x: -3, y: -3, type: 'tree' }, { x: 36, y: -3, type: 'tree' }, { x: -3, y: 37, type: 'tree' }, { x: 36, y: 37, type: 'tree' },
-      { x: 2, y: -1, type: 'bush' }, { x: 8, y: -1, type: 'bush' }, { x: 14, y: -1, type: 'bush' }, { x: 20, y: -1, type: 'bush' }, { x: 26, y: -1, type: 'bush' }, { x: 32, y: -1, type: 'bush' },
-      { x: 35, y: 5, type: 'bush' }, { x: 35, y: 12, type: 'bush' }, { x: 35, y: 20, type: 'bush' }, { x: 35, y: 28, type: 'bush' },
-      { x: -2, y: 5, type: 'bush' }, { x: -2, y: 12, type: 'bush' }, { x: -2, y: 20, type: 'bush' }, { x: -2, y: 28, type: 'bush' },
-      { x: 4, y: 36, type: 'bush' }, { x: 8, y: 36, type: 'bush' }, { x: 14, y: 36, type: 'bush' }, { x: 18, y: 36, type: 'bush' },
-      { x: 11, y: 36, type: 'bench', rot: 0 }, { x: 21, y: 36, type: 'bench', rot: 0 },
-      { x: -2, y: 16, type: 'bench', rot: 90 }, { x: 35, y: 16, type: 'bench', rot: -90 }
+      // Exec Doors (perfectly fit in gaps)
+      { x: 4, y: 6, type: 'doorH' }, { x: 10, y: 6, type: 'doorH' }, { x: 17, y: 6, type: 'doorH' },
+      
+      // Left Hallway Doors
+      { x: 20, y: 14, type: 'doorV' },
+      { x: 20, y: 25, type: 'doorV' },
+      { x: 20, y: 34, type: 'doorV' },
+      { x: 20, y: 42, type: 'doorV' },
+      
+      // Left Internal Doors
+      { x: 8, y: 25, type: 'doorV' },
+      { x: 10, y: 34, type: 'doorV' },
+
+      // Right Hallway Doors
+      { x: 26, y: 5, type: 'doorV' },
+      { x: 26, y: 15, type: 'doorV' },
+      { x: 26, y: 25, type: 'doorV' },
+      { x: 26, y: 34, type: 'doorV' },
+
+      // Right Internal Doors
+      { x: 36, y: 5, type: 'doorV' },
+      { x: 36, y: 15, type: 'doorV' },
+      { x: 38, y: 25, type: 'doorV' },
+      { x: 38, y: 42, type: 'doorV' },
+      
+      // Main Entrance
+      { x: 22, y: 47.6, type: 'doorHDouble' },
+
+      // Reception (Front Right)
+      { x: 28, y: 40, type: 'receptionDesk' }, { x: 29, y: 44, type: 'sofa', rot: 0 }, { x: 35, y: 44, type: 'sofa', rot: 0 }, { x: 32, y: 44.2, type: 'coffeeTable' }, 
+      
+      // Pantry
+      { x: 26.4, y: 20.4, type: 'sinkCounter' }, { x: 36, y: 20.4, type: 'fridge' }, { x: 34, y: 20.4, type: 'snackShelf' },
+      { x: 30, y: 24, type: 'pantryIsland' }, { x: 30.5, y: 25.5, type: 'stool', rot: 0 }, { x: 31.5, y: 25.5, type: 'stool', rot: 0 }, { x: 32.5, y: 25.5, type: 'stool', rot: 0 },
+      { x: 34, y: 25, type: 'breakroomTable' }, { x: 33.5, y: 24.5, type: 'chairProp', rot: 0 }, { x: 35.5, y: 24.5, type: 'chairProp', rot: 0 },
+      
+      // Washrooms
+      { x: 39, y: 40, type: 'toiletCubicle' }, { x: 39, y: 44, type: 'toiletCubicle' },
+      
+      // Clinic Beds
+      { x: 39.5, y: 21.5, type: 'clinicBed', rot: 0 }, { x: 39.5, y: 24.5, type: 'clinicBed', rot: 0 }, { x: 39.5, y: 27.5, type: 'clinicBed', rot: 0 },
+      { x: 43.5, y: 21.5, type: 'clinicBed', rot: 0 }, { x: 43.5, y: 24.5, type: 'clinicBed', rot: 0 }, { x: 43.5, y: 27.5, type: 'clinicBed', rot: 0 },
+
+      // Events
+      { x: 4, y: 41, type: 'longTable' }, 
+      { x: 4.5, y: 40, type: 'chairProp', rot: 0 }, { x: 5.8, y: 40, type: 'chairProp', rot: 0 }, { x: 7.1, y: 40, type: 'chairProp', rot: 0 },
+      { x: 4.5, y: 43, type: 'chairProp', rot: 180 }, { x: 5.8, y: 43, type: 'chairProp', rot: 180 }, { x: 7.1, y: 43, type: 'chairProp', rot: 180 },
+      { x: 1.5, y: 39, type: 'speaker', rot: 45 }, { x: 15.5, y: 39, type: 'speaker', rot: -45 }, 
+      { x: 8, y: 45.4, type: 'tvScreen', rot: 0 },
+
+      // Decorative
+      { x: 0.5, y: 40, type: 'whiteboard', rot: 90 }, { x: 16, y: 42, type: 'boxOpen', rot: 15 }, { x: 15.5, y: 43, type: 'boxClosed', rot: 0 },
+      { x: 0.5, y: 1, type: 'bookshelf', rot: 0 }, { x: 44.5, y: 1, type: 'bookshelf', rot: 0 }, { x: 44.5, y: 20, type: 'bookshelf', rot: 0 }, { x: 0.5, y: 20.5, type: 'bookshelf', rot: 0 },
+      { x: 18.5, y: 1, type: 'plant' }, { x: 26.5, y: 1, type: 'plant' }, { x: 18.5, y: 21, type: 'plant' }, { x: 26.5, y: 21, type: 'plant' }, { x: 21, y: 38.5, type: 'plant' }, { x: 44.5, y: 45.5, type: 'plant' },
+      
+      // Exterior Bushes / Trees
+      { x: -3, y: -3, type: 'tree' }, { x: 46, y: -3, type: 'tree' }, { x: -3, y: 47, type: 'tree' }, { x: 46, y: 47, type: 'tree' },
+      { x: 2, y: -1, type: 'bush' }, { x: 10, y: -1, type: 'bush' }, { x: 18, y: -1, type: 'bush' }, { x: 26, y: -1, type: 'bush' }, { x: 34, y: -1, type: 'bush' }, { x: 42, y: -1, type: 'bush' },
+      { x: 45, y: 5, type: 'bush' }, { x: 45, y: 15, type: 'bush' }, { x: 45, y: 25, type: 'bush' }, { x: 45, y: 35, type: 'bush' },
+      { x: -2, y: 5, type: 'bush' }, { x: -2, y: 15, type: 'bush' }, { x: -2, y: 25, type: 'bush' }, { x: -2, y: 35, type: 'bush' },
+      { x: 4, y: 46, type: 'bush' }, { x: 12, y: 46, type: 'bush' }, { x: 24, y: 46, type: 'bush' }, { x: 32, y: 46, type: 'bush' }, { x: 40, y: 46, type: 'bush' },
+      { x: 15, y: 46, type: 'bench', rot: 0 }, { x: 27, y: 46, type: 'bench', rot: 0 }
     ];
 
     const FULL_SIGNS = [
-      { x: 2.2, y: 0.42, z: 45, w: 3.5, text: "CEO", rot: 0 }, { x: 6.2, y: 0.42, z: 45, w: 3.5, text: "CTO", rot: 0 }, { x: 10.2, y: 0.42, z: 45, w: 3.5, text: "CFO", rot: 0 },
+      { x: 1.2, y: 6.42, z: 45, w: 3.5, text: "CEO", rot: 0 }, { x: 7.2, y: 6.42, z: 45, w: 3.5, text: "CTO", rot: 0 }, { x: 14.2, y: 6.42, z: 45, w: 3.5, text: "CFO", rot: 0 },
       { x: 1.2, y: 8.42, z: 45, w: 6, text: "Devs", rot: 0 },
-      { x: 1.2, y: 15.42, z: 45, w: 4, text: "BA", rot: 0 }, { x: 8.2, y: 15.42, z: 45, w: 4, text: "QA", rot: 0 },
-      { x: 1.2, y: 21.42, z: 45, w: 6, text: "Project Mgmt", rot: 0 }, { x: 8.2, y: 21.42, z: 45, w: 4, text: "UI Design", rot: 0 },
-      { x: 1.2, y: 28.42, z: 45, w: 6, text: "Event Place", rot: 0 },
-      { x: 21.2, y: 0.42, z: 45, w: 6, text: "Operations", rot: 0 }, { x: 21.2, y: 8.42, z: 45, w: 6, text: "Sales Dept", rot: 0 },
-      { x: 21.2, y: 15.42, z: 45, w: 6, text: "Support", rot: 0 }, { x: 28.2, y: 15.42, z: 45, w: 5, text: "Marketing", rot: 0 },
-      { x: 23.2, y: 21.42, z: 70, w: 6, text: "Breakout", rot: 0 }, 
-      { x: 30.6, y: 21.42, z: 45, w: 3, text: "WC", rot: 0 }, { x: 23.2, y: 28.42, z: 45, w: 6, text: "HR Dept", rot: 0 }
+      { x: 1.0, y: 20.42, z: 45, w: 3, text: "BA", rot: 0 }, { x: 9.2, y: 20.42, z: 45, w: 4, text: "QA", rot: 0 },
+      { x: 1.2, y: 30.42, z: 45, w: 6, text: "Project Mgmt", rot: 0 }, { x: 11.2, y: 30.42, z: 45, w: 4, text: "UI Design", rot: 0 },
+      { x: 1.2, y: 38.42, z: 45, w: 6, text: "Event Place", rot: 0 },
+      { x: 27.2, y: 0.42, z: 45, w: 6, text: "Operations", rot: 0 }, { x: 37.2, y: 0.42, z: 45, w: 6, text: "Sales Dept", rot: 0 },
+      { x: 27.2, y: 10.42, z: 45, w: 6, text: "Support", rot: 0 }, { x: 37.2, y: 10.42, z: 45, w: 5, text: "Marketing", rot: 0 },
+      { x: 27.2, y: 20.42, z: 70, w: 6, text: "Breakout", rot: 0 }, 
+      { x: 27.2, y: 30.42, z: 45, w: 6, text: "HR Dept", rot: 0 }, { x: 39.2, y: 38.42, z: 45, w: 3, text: "WC", rot: 0 } 
     ];
 
     const DEPT_NAMES_LOOKUP = FULL_ROOMS.reduce((acc, r) => ({...acc, [r.id]: r.name}), {});
@@ -274,14 +340,14 @@
     const AVATAR_OPTIONS = {
       bodyType: ['Standard', 'Slender', 'Sturdy'],
       head: ['Round', 'Square', 'Pointy', 'Oval'],
-      hair: ['Short', 'Spiky', 'Long', 'Bald', 'Bob', 'Curly', 'Ponytail', 'Braids', 'Undercut', 'Messy', 'Afro', 'Buns', 'SlickedBack', 'HalfUp'],
+      hair: ['Short', 'Spiky', 'Long', 'Bald', 'Bob', 'Curly', 'Ponytail', 'Braids', 'Undercut', 'Messy', 'Afro', 'Buns', 'SlickedBack', 'HalfUp', 'Curtain', 'LongWavy', 'OneSide', 'Faded', 'Taper', 'Fringe', 'Crew', 'Shag'],
       eyes: ['Basic', 'Ovals', 'Squint', 'Expressive'],
       eyebrows: ['Standard', 'Angry', 'Sad', 'None'],
       mouth: ['Smile', 'Open', 'Line', 'Frown', 'Smirk'],
       top: ['Tee', 'Hoodie', 'ButtonUp', 'Blazer', 'Flannel', 'TankTop'],
       bottom: ['Jeans', 'Slacks', 'Shorts', 'Skirt'],
       shoes: ['Sneakers', 'Boots'],
-      accessory: ['None', 'Glasses', 'Headphones', 'Mask', 'Scarf']
+      accessory: ['None', 'Glasses', 'Headphones', 'Mask', 'Scarf', 'Cap']
     };
 
     const ChibiAvatar = ({ config, size = 64, className = "", effectiveStatus = 'office', style = {} }) => {
@@ -321,13 +387,17 @@
               <path d="M 0 6 H 12 M 6 0 V 12" stroke="rgba(0,0,0,0.15)" strokeWidth="3" />
               <path d="M 0 2 H 12 M 2 0 V 12" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
             </pattern>
+            {/* Cap Clipping Mask to prevent high hair from poking through the cap */}
+            <clipPath id="cap-clip">
+              <rect x="-20" y="28" width="140" height="130" />
+            </clipPath>
           </defs>
 
           {/* GLOBAL GROUP FOR CHIBI LINE ART STYLE */}
           <g stroke="#1c1917" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             
             {/* BACK HAIR (Animated) */}
-            <g id="back-hair" fill={hairColor} className="breathe-target">
+            <g id="back-hair" fill={hairColor} className="breathe-target" clipPath={accessory === 'Cap' ? "url(#cap-clip)" : undefined}>
               {hair === 'Long' && <path d="M 16 45 A 34 42 0 0 1 84 45 L 88 100 C 60 110 40 110 12 100 Z" />}
               {hair === 'Bob' && <path d="M 16 45 A 34 42 0 0 1 84 45 L 86 75 C 60 85 40 85 14 75 Z" />}
               {hair === 'Ponytail' && <circle cx="85" cy="35" r="16" />}
@@ -344,6 +414,8 @@
                    <path d="M 75 50 C 90 70 90 100 75 115" fill="none" stroke={hairColor} strokeWidth="12" />
                  </g>
               )}
+              {hair === 'LongWavy' && <path d="M 16 45 A 34 42 0 0 1 84 45 Q 90 70 80 90 Q 70 110 50 100 Q 30 110 20 90 Q 10 70 16 45 Z" />}
+              {hair === 'Shag' && <path d="M 16 45 A 34 42 0 0 1 84 45 L 90 60 L 80 50 L 85 70 L 75 60 L 80 80 L 50 70 L 20 80 L 25 60 L 15 70 L 20 50 L 10 60 Z" />}
             </g>
 
             {/* LEGS & SHOES (Planted, Not Animated) */}
@@ -494,7 +566,7 @@
 
               {/* FRONT HAIR */}
               {hair !== 'Bald' && (
-                <g id="front-hair" fill={hairColor}>
+                <g id="front-hair" fill={hairColor} clipPath={accessory === 'Cap' ? "url(#cap-clip)" : undefined}>
                   {hair === 'Short' && <path d="M 16 45 A 34 42 0 0 1 84 45 C 75 25 55 20 50 30 C 45 20 25 25 16 45 Z" />}
                   {hair === 'Spiky' && <path d="M 16 45 L 20 5 L 35 15 L 50 -10 L 65 15 L 80 5 L 84 45 C 70 25 30 25 16 45 Z" />}
                   {hair === 'Undercut' && <path d="M 18 40 A 32 38 0 0 1 82 40 C 65 15 35 15 18 40 Z" />}
@@ -517,6 +589,14 @@
                        {hair === 'HalfUp' && <circle cx="50" cy="5" r="12" />}
                      </g>
                   )}
+                  {hair === 'Curtain' && <path d="M 16 45 A 34 42 0 0 1 84 45 C 80 20 60 20 50 35 C 40 20 20 20 16 45 Z" />}
+                  {hair === 'LongWavy' && <path d="M 16 45 A 34 42 0 0 1 84 45 C 75 25 25 25 16 45 Z" />}
+                  {hair === 'OneSide' && <path d="M 16 45 A 34 42 0 0 1 84 45 C 60 10 25 15 16 45 Z" />}
+                  {hair === 'Faded' && <path d="M 16 45 A 34 42 0 0 1 84 45 C 80 30 20 30 16 45 Z" opacity="0.6" />}
+                  {hair === 'Taper' && <path d="M 16 45 A 34 42 0 0 1 84 45 C 75 20 25 20 16 45 Z" />}
+                  {hair === 'Fringe' && <path d="M 16 45 A 34 42 0 0 1 84 45 L 82 30 Q 50 35 18 30 Z" />}
+                  {hair === 'Crew' && <path d="M 16 45 A 34 42 0 0 1 84 45 A 33 40 0 0 0 16 45 Z" />}
+                  {hair === 'Shag' && <path d="M 16 45 A 34 42 0 0 1 84 45 L 75 30 L 65 35 L 50 20 L 35 35 L 25 30 Z" />}
                 </g>
               )}
 
@@ -542,6 +622,14 @@
                 {accessory === 'Scarf' && (
                    <path d="M 36 62 Q 50 72 64 62 L 55 85 L 45 85 Z" fill="#ef4444" />
                 )}
+                {accessory === 'Cap' && (
+                   <g>
+                     {/* Enlarged dome to fit perfectly over the top of the head arc */}
+                     <path d="M 15 28 A 38 34 0 0 1 85 28 Z" fill={topColor} />
+                     <path d="M 5 28 Q 50 40 95 28 Q 50 25 5 28 Z" fill={bottomColor} />
+                     <circle cx="50" cy="-2" r="6" fill={bottomColor} />
+                   </g>
+                )}
               </g>
             </g>
           </g>
@@ -552,17 +640,17 @@
     const IsoBox = ({ x, y, w, h, z = 0, depth = 20, colors, isGlass, hasBaseboard, renderFront, renderRight, renderTop, className = "" }) => {
       const s = colors || DEFAULT_COLORS.wall;
       return (
-        <div className={`absolute ${className}`} style={{ left: x, top: y, width: w, height: h, transform: `translateZ(${z}px)`, transformStyle: 'preserve-3d' }}>
+        <div className={`absolute pointer-events-none ${className}`} style={{ left: x, top: y, width: w, height: h, transform: `translateZ(${z}px)`, transformStyle: 'preserve-3d' }}>
           <div className="absolute inset-0" style={{ background: s.top, transform: `translateZ(${depth}px)`, border: isGlass ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.1)' }}>
-             {renderTop && <div className="absolute inset-0">{renderTop}</div>}
+             {renderTop && <div className="absolute inset-0 pointer-events-auto">{renderTop}</div>}
           </div>
           <div className="absolute left-0 bottom-0 origin-bottom" style={{ width: '100%', height: depth, background: s.front, transform: `rotateX(-90deg)`, border: isGlass ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.1)' }}>
              {hasBaseboard && <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-[#475569]"></div>}
-             {renderFront && <div className="absolute inset-0">{renderFront}</div>}
+             {renderFront && <div className="absolute inset-0 pointer-events-auto">{renderFront}</div>}
           </div>
           <div className="absolute right-0 top-0 origin-right" style={{ width: depth, height: '100%', background: s.right, transform: `rotateY(90deg)`, border: isGlass ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.1)' }}>
              {hasBaseboard && <div className="absolute bottom-0 right-0 top-0 w-1.5 bg-[#334155]"></div>}
-             {renderRight && <div className="absolute inset-0">{renderRight}</div>}
+             {renderRight && <div className="absolute inset-0 pointer-events-auto">{renderRight}</div>}
           </div>
         </div>
       );
@@ -572,7 +660,7 @@
       return (
         <div className="absolute" style={{ left: x * TILE, top: y * TILE, width: TILE, height: TILE, transformStyle: 'preserve-3d' }}>
            <div 
-             className={`absolute group ${onSelectUser ? 'cursor-pointer' : ''}`} 
+             className={`absolute group pointer-events-auto ${onSelectUser ? 'cursor-pointer' : ''}`} 
              style={{ left: TILE/2, top: TILE/2, transform: 'translateZ(0px)', transformStyle: 'preserve-3d' }}
              onPointerDown={(e) => { e.stopPropagation(); if (onSelectUser) onSelectUser(user.uid); }}
            >
@@ -619,12 +707,12 @@
       const effStatus = user ? getEffectiveStatus(user) : 'office';
 
       return (
-        <div className="absolute" style={{ left: px, top: py, width: 2*TILE, height: 1*TILE, transform: `rotateZ(${dir}deg)`, transformStyle: 'preserve-3d' }}>
+        <div className="absolute pointer-events-none" style={{ left: px, top: py, width: 2*TILE, height: 1*TILE, transform: `rotateZ(${dir}deg)`, transformStyle: 'preserve-3d' }}>
            
            {/* DEPTH FIX: Avatar placed AT CHAIR HEIGHT (Z=16) so desk surface (Z=26) correctly overlaps legs */}
            {user && (
              <div 
-               className={`absolute group ${onSelectUser ? 'cursor-pointer' : ''}`} 
+               className={`absolute group pointer-events-auto ${onSelectUser ? 'cursor-pointer' : ''}`} 
                style={{ left: 10, top: 10, transform: 'translateZ(16px)', transformStyle: 'preserve-3d' }}
                onPointerDown={(e) => { e.stopPropagation(); if (onSelectUser) onSelectUser(user.uid); }}
              >
@@ -687,24 +775,24 @@
       const px = x * TILE; const py = y * TILE;
       const c = colors || DEFAULT_COLORS;
       
-      if (type === 'plant') return <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={4} y={4} w={16} h={16} z={0} depth={15} colors={c.pot} renderTop={<div className="w-full h-full bg-[#15803d] rounded-full scale-150 border border-green-900"></div>}/></div>;
+      if (type === 'plant') return <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={4} y={4} w={16} h={16} z={0} depth={15} colors={c.pot} renderTop={<div className="w-full h-full bg-[#15803d] rounded-full scale-150 border border-green-900"></div>}/></div>;
       
       if (type === 'doorV') return (
-         <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
+         <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
             <IsoBox x={0} y={0} w={16} h={40} z={0} depth={65} colors={c.door} isGlass={true} 
               renderRight={<div className="w-full h-full border-[3px] border-slate-400/70 flex justify-center items-center"><div className="w-1.5 h-12 bg-slate-200 rounded-full border border-slate-500 shadow-md"></div></div>} 
             />
          </div>
       );
       if (type === 'doorH') return (
-         <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
+         <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
             <IsoBox x={0} y={0} w={40} h={16} z={0} depth={65} colors={c.door} isGlass={true} 
               renderFront={<div className="w-full h-full border-[3px] border-slate-400/70 flex justify-center items-center"><div className="w-12 h-1.5 bg-slate-200 rounded-full border border-slate-500 shadow-md"></div></div>}
             />
          </div>
       );
       if (type === 'doorHDouble') return (
-         <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
+         <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
             <IsoBox x={0} y={0} w={80} h={16} z={0} depth={65} colors={c.door} isGlass={true} 
               renderFront={<div className="w-full h-full border-[3px] border-slate-400/70 flex flex-row">
                  <div className="w-1/2 h-full flex justify-end items-center pr-2 border-r-[1.5px] border-slate-400/70"><div className="w-10 h-1.5 bg-slate-200 rounded-full shadow-md"></div></div>
@@ -715,7 +803,7 @@
       );
 
       if (type === 'receptionDesk') return (
-        <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
+        <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
            <IsoBox x={20} y={10} w={240} h={30} z={0} depth={28} colors={c.desk} />
            <IsoBox x={0} y={40} w={280} h={15} z={0} depth={40} colors={c.desk} renderFront={
               <div className="w-full h-full flex items-center justify-center p-2" style={{ transform: 'translateZ(1px)' }}>
@@ -735,7 +823,7 @@
       );
 
       if (type === 'clinicBed') return (
-         <div className="absolute" style={{ left: px, top: py, transform: `rotateZ(${rot}deg)`, transformStyle: 'preserve-3d' }}>
+         <div className="absolute pointer-events-none" style={{ left: px, top: py, transform: `rotateZ(${rot}deg)`, transformStyle: 'preserve-3d' }}>
             <IsoBox x={2} y={2} w={4} h={4} z={0} depth={10} colors={c.pc} />
             <IsoBox x={34} y={2} w={4} h={4} z={0} depth={10} colors={c.pc} />
             <IsoBox x={2} y={74} w={4} h={4} z={0} depth={10} colors={c.pc} />
@@ -747,23 +835,23 @@
       );
 
       if (type === 'sofa') return (
-        <div className="absolute" style={{ left: px, top: py, transform: `rotateZ(${rot}deg)`, transformStyle: 'preserve-3d' }}>
+        <div className="absolute pointer-events-none" style={{ left: px, top: py, transform: `rotateZ(${rot}deg)`, transformStyle: 'preserve-3d' }}>
            <IsoBox x={0} y={0} w={40} h={20} z={4} depth={10} colors={c.sofa} />
            <IsoBox x={0} y={15} w={40} h={5} z={14} depth={15} colors={c.sofa} />
         </div>
       );
       if (type === 'coffeeTable') return (
-        <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
+        <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
            <IsoBox x={0} y={0} w={30} h={20} z={8} depth={2} colors={c.counter} />
         </div>
       );
-      if (type === 'sinkCounter') return <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={240} h={25} z={0} depth={28} colors={c.counter} /></div>;
-      if (type === 'pantryIsland') return <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={120} h={30} z={0} depth={30} colors={c.counter} /></div>;
-      if (type === 'fridge') return <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={60} h={25} z={0} depth={70} colors={c.fridge} /></div>;
-      if (type === 'toiletCubicle') return <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={160} h={4} z={0} depth={60} colors={c.counter} /></div>;
+      if (type === 'sinkCounter') return <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={240} h={25} z={0} depth={28} colors={c.counter} /></div>;
+      if (type === 'pantryIsland') return <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={120} h={30} z={0} depth={30} colors={c.counter} /></div>;
+      if (type === 'fridge') return <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={60} h={25} z={0} depth={70} colors={c.fridge} /></div>;
+      if (type === 'toiletCubicle') return <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={160} h={4} z={0} depth={60} colors={c.counter} /></div>;
       
       if (type === 'longTable') return (
-        <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
+        <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
            {/* Legs */}
            <IsoBox x={10} y={10} w={4} h={4} z={0} depth={22} colors={c.pc} />
            <IsoBox x={146} y={10} w={4} h={4} z={0} depth={22} colors={c.pc} />
@@ -774,14 +862,14 @@
         </div>
       );
       if (type === 'breakroomTable') return (
-        <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
+        <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
            {/* Pedestal */}
            <IsoBox x={16} y={16} w={8} h={8} z={0} depth={22} colors={c.pc} />
            <IsoBox x={0} y={0} w={40} h={40} z={22} depth={4} colors={c.desk} renderTop={<div className="w-full h-full rounded-full border border-slate-200"></div>} />
         </div>
       );
       if (type === 'chairProp') return (
-         <div className="absolute" style={{ left: px, top: py, transform: `rotateZ(${rot}deg)`, transformStyle: 'preserve-3d' }}>
+         <div className="absolute pointer-events-none" style={{ left: px, top: py, transform: `rotateZ(${rot}deg)`, transformStyle: 'preserve-3d' }}>
             {/* Stand / Base for Chair */}
             <IsoBox x={7} y={7} w={2} h={2} z={0} depth={10} colors={c.chair} />
             <IsoBox x={2} y={7} w={12} h={2} z={0} depth={2} colors={c.pc} />
@@ -793,32 +881,32 @@
          </div>
       );
       if (type === 'stool') return (
-        <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
+        <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
            {/* Stand */}
            <IsoBox x={5} y={5} w={2} h={2} z={0} depth={22} colors={c.pc} />
            <IsoBox x={0} y={0} w={12} h={12} z={22} depth={3} colors={c.desk} renderTop={<div className="w-full h-full rounded-full border border-slate-700"></div>} />
         </div>
       );
-      if (type === 'whiteboard') return <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={10} w={60} h={4} z={15} depth={30} colors={c.counter} renderFront={<div className="w-full h-full border-4 border-slate-400 bg-white"></div>} /></div>;
-      if (type === 'tvScreen') return <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={80} h={4} z={30} depth={40} colors={c.pc} renderFront={<div className="w-full h-full border-4 border-black bg-blue-900"></div>} /></div>;
-      if (type === 'speaker') return <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={10} h={10} z={0} depth={40} colors={c.speaker} /></div>;
-      if (type === 'boxOpen') return <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={16} h={16} z={0} depth={14} colors={c.box} renderTop={<div className="w-full h-full bg-black/60 border border-black"></div>} /></div>;
-      if (type === 'boxClosed') return <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={16} h={16} z={0} depth={14} colors={c.box} /></div>;
-      if (type === 'bookshelf') return <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={40} h={16} z={0} depth={60} colors={c.pot} /></div>;
-      if (type === 'snackShelf') return <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={40} h={15} z={0} depth={60} colors={c.pot} /></div>;
+      if (type === 'whiteboard') return <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={10} w={60} h={4} z={15} depth={30} colors={c.counter} renderFront={<div className="w-full h-full border-4 border-slate-400 bg-white"></div>} /></div>;
+      if (type === 'tvScreen') return <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={80} h={4} z={30} depth={40} colors={c.pc} renderFront={<div className="w-full h-full border-4 border-black bg-blue-900"></div>} /></div>;
+      if (type === 'speaker') return <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={10} h={10} z={0} depth={40} colors={c.speaker} /></div>;
+      if (type === 'boxOpen') return <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={16} h={16} z={0} depth={14} colors={c.box} renderTop={<div className="w-full h-full bg-black/60 border border-black"></div>} /></div>;
+      if (type === 'boxClosed') return <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={16} h={16} z={0} depth={14} colors={c.box} /></div>;
+      if (type === 'bookshelf') return <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={40} h={16} z={0} depth={60} colors={c.pot} /></div>;
+      if (type === 'snackShelf') return <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}><IsoBox x={0} y={0} w={40} h={15} z={0} depth={60} colors={c.pot} /></div>;
       if (type === 'bush') return (
-        <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
+        <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
            <IsoBox x={2} y={2} w={36} h={36} z={0} depth={20} colors={{top:'#15803d', front:'#166534', right:'#14532d'}} />
         </div>
       );
       if (type === 'tree') return (
-        <div className="absolute" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
+        <div className="absolute pointer-events-none" style={{ left: px, top: py, transformStyle: 'preserve-3d' }}>
            <IsoBox x={16} y={16} w={8} h={8} z={0} depth={40} colors={{top:'#78350f', front:'#451a03', right:'#451a03'}} />
            <IsoBox x={-10} y={-10} w={60} h={60} z={40} depth={30} colors={{top:'#15803d', front:'#166534', right:'#14532d'}} />
         </div>
       );
       if (type === 'bench') return (
-        <div className="absolute" style={{ left: px, top: py, transform: `rotateZ(${rot}deg)`, transformStyle: 'preserve-3d' }}>
+        <div className="absolute pointer-events-none" style={{ left: px, top: py, transform: `rotateZ(${rot}deg)`, transformStyle: 'preserve-3d' }}>
            <IsoBox x={0} y={10} w={40} h={20} z={12} depth={4} colors={{top:'#dcb68a', front:'#c79b6d', right:'#a87648'}} />
         </div>
       );
@@ -826,7 +914,7 @@
     };
 
     const WallSign = ({ x, y, z, w, text, rot = 0 }) => (
-      <div className="absolute" style={{ left: x * TILE, top: y * TILE, transform: `rotateZ(${rot}deg)`, transformStyle: 'preserve-3d' }}>
+      <div className="absolute pointer-events-none" style={{ left: x * TILE, top: y * TILE, transform: `rotateZ(${rot}deg)`, transformStyle: 'preserve-3d' }}>
          <IsoBox x={0} y={0} w={w * TILE} h={4} z={z} depth={15} colors={{top:'#1e293b', front:'#ffffff', right:'#94a3b8'}} renderFront={<div className="w-full h-full border-4 border-slate-300 bg-white flex items-center justify-center" style={{ transform: 'translateZ(1px)' }}><span className="font-black text-slate-800 text-[9px] uppercase tracking-widest leading-none text-center px-1">{(text || '').toString()}</span></div>}/>
       </div>
     );
@@ -845,7 +933,7 @@
 
       useEffect(() => {
         if (wrapperRef.current) {
-          wrapperRef.current.style.transform = `translate(${panRef.current.x}px, ${panRef.current.y}px) scale(${mapZoom})`;
+          wrapperRef.current.style.transform = `translate3d(${panRef.current.x}px, ${panRef.current.y}px, 0) scale(${mapZoom})`;
         }
       }, [mapZoom]);
 
@@ -859,7 +947,7 @@
         const dx = e.clientX - lastMouse.current.x; const dy = e.clientY - lastMouse.current.y;
         panRef.current.x = Math.max(Math.min(panRef.current.x + dx, 1500), -1500);
         panRef.current.y = Math.max(Math.min(panRef.current.y + dy, 1500), -1500);
-        if (wrapperRef.current) wrapperRef.current.style.transform = `translate(${panRef.current.x}px, ${panRef.current.y}px) scale(${mapZoom})`;
+        if (wrapperRef.current) wrapperRef.current.style.transform = `translate3d(${panRef.current.x}px, ${panRef.current.y}px, 0) scale(${mapZoom})`;
         lastMouse.current = { x: e.clientX, y: e.clientY };
       };
       const onPointerUp = (e) => { isDraggingRef.current = false; e.currentTarget.releasePointerCapture(e.pointerId); };
@@ -870,8 +958,8 @@
 
       return (
         <div className="w-full h-full overflow-hidden cursor-move touch-none relative select-none bg-sky-200" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerLeave={onPointerUp}>
-          <div ref={wrapperRef} className="absolute origin-center will-change-transform" style={{ transform: `translate(${panRef.current.x}px, ${panRef.current.y}px) scale(${mapZoom})`, left: '50%', top: '50%' }}>
-            <div className="relative shadow-[150px_150px_80px_rgba(0,0,0,0.15)]" style={{ width: MAP_W * TILE, height: MAP_H * TILE, marginLeft: -(MAP_W * TILE) / 2, marginTop: -(MAP_H * TILE) / 2, transform: `rotateX(60deg) rotateZ(45deg)`, transformStyle: 'preserve-3d' }}>
+          <div ref={wrapperRef} className="absolute origin-center will-change-transform" style={{ transform: `translate3d(${panRef.current.x}px, ${panRef.current.y}px, 0) scale(${mapZoom})`, left: '50%', top: '50%' }}>
+            <div className="relative shadow-[150px_150px_80px_rgba(0,0,0,0.15)] pointer-events-none" style={{ width: MAP_W * TILE, height: MAP_H * TILE, marginLeft: -(MAP_W * TILE) / 2, marginTop: -(MAP_H * TILE) / 2, transform: `rotateX(60deg) rotateZ(45deg)`, transformStyle: 'preserve-3d' }}>
                <div className="absolute rounded-2xl" style={{ left: -4 * TILE, top: -4 * TILE, width: (MAP_W + 8) * TILE, height: (MAP_H + 8) * TILE, background: '#cbd5e1', backgroundImage: `linear-gradient(#94a3b8 2px, transparent 2px), linear-gradient(90deg, #94a3b8 2px, transparent 2px)`, backgroundSize: `${TILE * 2}px ${TILE * 2}px`, transform: 'translateZ(-2px)', border: '4px solid #94a3b8' }}></div>
                
                {rooms.map(room => (<div key={room.id} className="absolute overflow-hidden shadow-inner" style={{ left: room.x * TILE, top: room.y * TILE, width: room.w * TILE, height: room.h * TILE, background: String(room.bg), border: '1px solid rgba(0,0,0,0.1)', transform: 'translateZ(-1px)' }}></div>))}
@@ -894,14 +982,14 @@
 
                {/* Map Users Having a Break into the Pantry */}
                {breakUsers.map((u, i) => (
-                  <FreeAvatar key={u.uid} user={u} x={21 + (i % 4) * 2} y={22 + Math.floor(i / 4) * 2} effStatus="break" onSelectUser={onSelectUser} isSelected={selectedUserId === u.uid} />
+                  <FreeAvatar key={u.uid} user={u} x={27 + (i % 4) * 2} y={22 + Math.floor(i / 4) * 2} effStatus="break" onSelectUser={onSelectUser} isSelected={selectedUserId === u.uid} />
                ))}
 
                {/* Map Sick Users onto Clinic Beds */}
                {sickUsers.map((u, i) => {
                   const bedIndex = i % 6;
-                  const bedX = bedIndex < 3 ? 30.5 : 32.5;
-                  const bedY = bedIndex % 3 === 0 ? 28.3 : (bedIndex % 3 === 1 ? 30.6 : 32.9);
+                  const bedX = bedIndex < 3 ? 39.5 : 43.5;
+                  const bedY = bedIndex % 3 === 0 ? 21.5 : (bedIndex % 3 === 1 ? 24.5 : 27.5);
                   return <FreeAvatar key={u.uid} user={u} x={bedX + 0.5} y={bedY + 0.6} effStatus="sick" isLyingDown={true} onSelectUser={onSelectUser} isSelected={selectedUserId === u.uid} />;
                })}
 
@@ -935,6 +1023,11 @@
       const [rosterGroupBy, setRosterGroupBy] = useState('status');
       const [expandedRosterUser, setExpandedRosterUser] = useState(null);
       const [timeLogs, setTimeLogs] = useState([]);
+      
+      const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+      const hasUnsavedChangesRef = useRef(false);
+      const [pendingNavView, setPendingNavView] = useState(null);
+      const [showSaveConfirm, setShowSaveConfirm] = useState(false);
 
       // --- New Chat States ---
       const [isChatOpen, setIsChatOpen] = useState(false);
@@ -1041,17 +1134,20 @@
           const currentProfile = allProfiles.find(p => p.uid === user.uid);
           if (currentProfile) {
             setUserProfile(currentProfile);
-            setProfileForm({
-              displayName: currentProfile.displayName || '',
-              email: currentProfile.email || '',
-              contact: currentProfile.contact || '',
-              dept: currentProfile.dept || 'dev',
-              workStatus: currentProfile.workStatus || 'office',
-              activeProject: currentProfile.activeProject || '',
-              isTimedIn: currentProfile.isTimedIn || false,
-              isOnBreak: currentProfile.isOnBreak || false,
-              avatarConfig: currentProfile.avatarConfig || profileForm.avatarConfig
-            });
+            // Only overwrite profileForm if the user doesn't have unsaved edits pending
+            if (!hasUnsavedChangesRef.current) {
+              setProfileForm({
+                displayName: currentProfile.displayName || '',
+                email: currentProfile.email || '',
+                contact: currentProfile.contact || '',
+                dept: currentProfile.dept || 'dev',
+                workStatus: currentProfile.workStatus || 'office',
+                activeProject: currentProfile.activeProject || '',
+                isTimedIn: currentProfile.isTimedIn || false,
+                isOnBreak: currentProfile.isOnBreak || false,
+                avatarConfig: currentProfile.avatarConfig || profileForm.avatarConfig
+              });
+            }
           }
         });
         
@@ -1102,6 +1198,21 @@
         setNewPost("");
       };
 
+      const setUnsaved = (val) => {
+        setHasUnsavedChanges(val);
+        hasUnsavedChangesRef.current = val;
+      };
+
+      const handleNavigation = (targetView) => {
+        if (view === 'profile' && hasUnsavedChanges) {
+          setPendingNavView(targetView);
+        } else {
+          setView(targetView);
+          setSelectedUserId(null);
+          setIsChatOpen(false);
+        }
+      };
+
       const handleSendMessage = async (e) => {
         e.preventDefault();
         if(!chatInput.trim() || !user) return;
@@ -1150,18 +1261,24 @@
         setToastMessage("Layout synced!"); setTimeout(() => setToastMessage(""), 3000);
       };
 
-      const handleUpdateProfile = async (e) => {
-        e.preventDefault();
+      const executeSaveProfile = async () => {
         if (!user) return;
         const userRef = doc(db, 'artifacts', appIdString, 'public', 'data', 'profiles', user.uid);
         try {
           await updateDoc(userRef, { ...profileForm, updatedAt: serverTimestamp() });
+          setUnsaved(false);
           setToastMessage("Profile updated!");
           setTimeout(() => setToastMessage(""), 3000);
         } catch (error) {
           setToastMessage("Update failed.");
           setTimeout(() => setToastMessage(""), 3000);
         }
+        setShowSaveConfirm(false);
+      };
+
+      const handleUpdateProfile = (e) => {
+        if (e) e.preventDefault();
+        setShowSaveConfirm(true);
       };
 
       const handleQuickStatusUpdate = async (field, value) => {
@@ -1250,6 +1367,7 @@
           ...prev,
           avatarConfig: { ...prev.avatarConfig, [key]: value }
         }));
+        setUnsaved(true);
       };
 
       const CategoryBlock = ({ title, featKey }) => (
@@ -1437,14 +1555,16 @@
           <nav className="hidden md:flex flex-col w-72 h-screen p-6 bg-white border-r-8 border-slate-300 z-50 shadow-2xl relative shrink-0">
             <div className="flex items-center gap-3 mb-12 mt-2"><div className="bg-indigo-600 p-2.5 rounded-xl shadow-lg border-b-4 border-indigo-900"><Layout className="text-white h-6 w-6" /></div><span className="text-3xl font-black tracking-tighter">KinHub</span></div>
             <div className="space-y-3 flex-1 pr-2 overflow-y-auto">
-              <button onClick={() => {setView('office'); setSelectedUserId(null); setIsChatOpen(false); }} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-black text-xs uppercase tracking-widest ${view === 'office' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}><MapIcon size={18} /> Office</button>
-              <button onClick={() => setView('projects')} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-black text-xs uppercase tracking-widest ${view === 'projects' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}><FolderKanban size={18} /> Projects</button>
-              <button onClick={() => setView('home')} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-black text-xs uppercase tracking-widest ${view === 'home' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}><MessageSquare size={18} /> Feed</button>
-              <button onClick={() => setView('directory')} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-black text-xs uppercase tracking-widest ${view === 'directory' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}><Users size={18} /> Network</button>
-              <button onClick={() => setView('history')} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-black text-xs uppercase tracking-widest ${view === 'history' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}><HistoryIcon size={18} /> History</button>
-              <button onClick={() => setView('profile')} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-black text-xs uppercase tracking-widest ${view === 'profile' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}><UserCircle size={18} /> Profile</button>
+              <button onClick={() => handleNavigation('office')} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-black text-xs uppercase tracking-widest ${view === 'office' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}><MapIcon size={18} /> Office</button>
+              <button onClick={() => handleNavigation('projects')} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-black text-xs uppercase tracking-widest ${view === 'projects' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}><FolderKanban size={18} /> Projects</button>
+              <button onClick={() => handleNavigation('home')} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-black text-xs uppercase tracking-widest ${view === 'home' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}><MessageSquare size={18} /> Feed</button>
+              <button onClick={() => handleNavigation('directory')} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-black text-xs uppercase tracking-widest ${view === 'directory' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}><Users size={18} /> Network</button>
+              <button onClick={() => handleNavigation('history')} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-black text-xs uppercase tracking-widest ${view === 'history' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}><HistoryIcon size={18} /> History</button>
+              <button onClick={() => handleNavigation('profile')} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-black text-xs uppercase tracking-widest ${view === 'profile' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}><UserCircle size={18} /> Profile</button>
               <div className="pt-8 mt-8 border-t border-slate-100 space-y-3">
-                <button onClick={() => setShowAdmin(!showAdmin)} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-black text-xs uppercase border-2 ${showAdmin ? 'bg-slate-800 text-white' : 'bg-white text-slate-500'}`}><Settings size={18} /> Zone Admin</button>
+                {user?.email === 'arkin.paroan@inventi.ph' && (
+                   <button onClick={() => setShowAdmin(!showAdmin)} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-black text-xs uppercase border-2 ${showAdmin ? 'bg-slate-800 text-white' : 'bg-white text-slate-500'}`}><Settings size={18} /> Zone Admin</button>
+                )}
                 <button onClick={() => signOut(auth)} className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-black text-xs uppercase text-red-50 hover:bg-red-50"><LogOut size={18} /> Sign Out</button>
               </div>
             </div>
@@ -1939,13 +2059,13 @@
                            <input 
                              type="text" 
                              value={profileForm.displayName || ''} 
-                             onChange={e => setProfileForm({...profileForm, displayName: e.target.value})} 
+                             onChange={e => { setProfileForm({...profileForm, displayName: e.target.value}); setUnsaved(true); }} 
                              className="bg-transparent text-3xl font-black tracking-tight text-center w-full outline-none border-b-2 border-white/10 focus:border-indigo-400 transition-colors pb-1"
                              placeholder="Your Nickname"
                            />
                            <select 
                              value={profileForm.dept || 'dev'} 
-                             onChange={e => setProfileForm({...profileForm, dept: e.target.value})} 
+                             onChange={e => { setProfileForm({...profileForm, dept: e.target.value}); setUnsaved(true); }} 
                              className="bg-transparent text-indigo-400 font-bold uppercase text-xs tracking-[0.2em] text-center w-full outline-none cursor-pointer"
                            >
                              {FULL_ROOMS.map(room => (<option key={room.id} value={room.id} className="bg-slate-800">{room.name}</option>))}
@@ -2040,6 +2160,49 @@
             {view === 'home' && <div className="w-full h-full p-4 md:p-12 overflow-y-auto bg-slate-50"><div className="max-w-3xl mx-auto space-y-8 pb-20"><header className="flex items-center gap-4 mb-10"><div className="bg-indigo-600 p-4 rounded-3xl shadow-lg border-b-4 border-indigo-900"><MessageSquare className="text-white w-8 h-8" /></div><div><h2 className="text-4xl font-black text-slate-800 tracking-tighter text-center">Office Feed</h2></div></header><div className="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-200"><textarea className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl h-[100px] outline-none" placeholder="Broadcast a thought..." value={newPost} onChange={(e) => setNewPost(e.target.value)} /><div className="mt-4 flex justify-end"><button onClick={handleCreatePost} disabled={!newPost.trim()} className="bg-slate-900 text-white px-8 py-3 rounded-xl font-black text-xs uppercase shadow-lg disabled:opacity-50 hover:bg-slate-800 transition-colors">Post</button></div></div><div className="space-y-6">{posts.map(p => (<div key={p.id} className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100"><div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200 shrink-0"><ChibiAvatar config={directory.find(k => k.uid === p.authorId)?.avatarConfig} size={48} effectiveStatus={getEffectiveStatus(directory.find(k => k.uid === p.authorId))} /></div><div><h4 className="font-black text-slate-800 tracking-tight">{(p.authorName || 'Colleague').toString()}</h4></div></div><p className="text-slate-600 font-medium text-lg leading-relaxed">{(p.content || '').toString()}</p></div>))}</div></div></div>}
             
             {view === 'directory' && <div className="w-full h-full p-4 md:p-12 overflow-y-auto bg-slate-50"><div className="max-w-6xl mx-auto pb-20"><h2 className="text-4xl font-black text-slate-800 tracking-tighter mb-10 text-center md:text-left">Network Directory</h2><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">{directory.map(kin => (<div key={kin.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 hover:shadow-lg transition-shadow group"><div className="w-20 h-20 rounded-2xl border-4 border-slate-50 bg-slate-100 flex items-center justify-center overflow-hidden mb-4 group-hover:scale-105 transition-transform"><ChibiAvatar config={kin.avatarConfig} size={64} effectiveStatus={getEffectiveStatus(kin)} /></div><h4 className="text-xl font-black truncate">{(kin.displayName || 'Member').toString()}</h4><p className="text-slate-400 font-bold text-[10px] uppercase tracking-tighter truncate">{(kin.email || 'Private Email').toString()}</p><span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-black uppercase rounded-lg mt-4">{DEPT_NAMES_LOOKUP[kin.dept] || 'Explorer'}</span></div>))}</div></div></div>}
+
+            {/* Save Profile Confirmation Modal */}
+            {showSaveConfirm && (
+              <div className="absolute inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowSaveConfirm(false)}>
+                <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 max-w-sm w-full animate-in zoom-in-95 text-center" onClick={e => e.stopPropagation()}>
+                  <div className="mx-auto w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-inner">
+                    <Save size={24} className="text-indigo-500" />
+                  </div>
+                  <h3 className="text-2xl font-black text-slate-800 mb-2">Save Profile?</h3>
+                  <p className="text-xs font-bold text-slate-500 mb-8 uppercase tracking-widest">Update your avatar and details.</p>
+                  <div className="flex gap-4">
+                    <button onClick={() => setShowSaveConfirm(false)} className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-colors">Cancel</button>
+                    <button onClick={executeSaveProfile} className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-indigo-500 transition-colors">Confirm</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Unsaved Changes Warning Modal */}
+            {pendingNavView && (
+              <div className="absolute inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => setPendingNavView(null)}>
+                <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 max-w-sm w-full animate-in zoom-in-95 text-center" onClick={e => e.stopPropagation()}>
+                  <div className="mx-auto w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-inner">
+                    <ShieldAlert size={24} className="text-amber-500" />
+                  </div>
+                  <h3 className="text-2xl font-black text-slate-800 mb-2">Unsaved Changes</h3>
+                  <p className="text-xs font-bold text-slate-500 mb-8 uppercase tracking-widest">Save your profile before leaving?</p>
+                  <div className="flex flex-col gap-3">
+                    <button onClick={async () => { await executeSaveProfile(); setView(pendingNavView); setPendingNavView(null); setSelectedUserId(null); setIsChatOpen(false); }} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-indigo-500 transition-colors">Save & Continue</button>
+                    <button onClick={() => { 
+                        setUnsaved(false); 
+                        if (userProfile) {
+                            setProfileForm({
+                              displayName: userProfile.displayName || '', email: userProfile.email || '', contact: userProfile.contact || '', dept: userProfile.dept || 'dev', workStatus: userProfile.workStatus || 'office', activeProject: userProfile.activeProject || '', isTimedIn: userProfile.isTimedIn || false, isOnBreak: userProfile.isOnBreak || false, avatarConfig: userProfile.avatarConfig || profileForm.avatarConfig
+                            });
+                        }
+                        setView(pendingNavView); setPendingNavView(null); setSelectedUserId(null); setIsChatOpen(false); 
+                    }} className="w-full py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-colors">Discard Changes</button>
+                    <button onClick={() => setPendingNavView(null)} className="w-full py-4 bg-transparent text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:text-slate-600 transition-colors">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            )}
           </main>
         </div>
       );
