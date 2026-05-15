@@ -791,10 +791,8 @@
       const activeMessages = getFilteredMessages();
 
       useEffect(() => { if (isChatOpen) { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); } }, [activeMessages, isChatOpen]);
-
-      const handleManualSave = async () => { await setDoc(doc(db, 'artifacts', appIdString, 'public', 'data', 'officeConfig', 'current'), officeConfig); setToastMessage("Layout synced!"); setTimeout(() => setToastMessage(""), 3000); };
-			
-			const handleManualSave = async () => {
+	
+	  const handleManualSave = async () => {
         await setDoc(doc(db, 'artifacts', appIdString, 'public', 'data', 'officeConfig', 'current'), officeConfig);
         setToastMessage("Layout synced!"); setTimeout(() => setToastMessage(""), 3000);
       };
