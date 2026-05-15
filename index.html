@@ -862,11 +862,6 @@ export default function App() {
     }
   };
 
-  const handleGuestLogin = async () => { 
-    setLoginError(""); 
-    try { await signInAnonymously(auth); } catch (error) { setLoginError("Guest login failed."); } 
-  };
-
   const renderMemberRow = (member) => {
     const isExpanded = expandedRosterUser === member.uid;
     const statusObj = WORK_STATUSES.find(s => s.id === member.workStatus) || WORK_STATUSES[0];
@@ -938,8 +933,7 @@ export default function App() {
             <h1 className="text-4xl font-black tracking-tighter text-slate-800 mb-2 drop-shadow-sm text-center">KinHub</h1>
             <p className="text-slate-700 font-bold mb-8 text-center text-sm drop-shadow-sm px-4 uppercase tracking-tight">Close ties. Great vibes. Welcome home.</p>
             {loginError && <div className="w-full bg-amber-50/80 backdrop-blur-sm text-amber-800 p-3 rounded-xl text-[10px] font-bold mb-4 text-center border border-amber-200 flex items-center gap-2"><ShieldAlert size={14} className="shrink-0" /><span>{loginError}</span></div>}
-            <button onClick={handleGoogleLogin} className="w-full flex items-center justify-center gap-3 bg-white/90 border border-white/60 p-4 rounded-xl font-black text-xs uppercase tracking-wider text-slate-700 mb-4 shadow-sm hover:bg-white transition-all">Sign in with Google</button>
-            <button onClick={handleGuestLogin} className="w-full bg-indigo-600 text-white p-4 rounded-xl font-black text-xs uppercase tracking-wider hover:bg-indigo-500 shadow-md">Continue as Guest</button>
+            <button onClick={handleGoogleLogin} className="w-full flex items-center justify-center gap-3 bg-white/90 border border-white/60 p-4 rounded-xl font-black text-xs uppercase tracking-wider text-slate-700 shadow-sm hover:bg-white transition-all">Sign in with Google</button>
          </div>
       </div>
     );
@@ -947,13 +941,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#94a3b8] text-slate-800 flex flex-col md:flex-row overflow-hidden font-sans">
-      
-      {/* Global CSS for Animations & Glow Effects */}
       <style>{`
-        @keyframes avatar-breathe {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-2.5px); }
-        }
+        @keyframes avatar-breathe { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-2.5px); } }
         .breathe-target {
           animation: avatar-breathe 3s ease-in-out infinite;
           animation-delay: var(--anim-delay, 0s);
