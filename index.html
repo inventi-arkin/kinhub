@@ -1507,31 +1507,6 @@
         </div>
       );
     }
-    const migrateMapDataToFirebase = async () => {
-      if (!user || user.email !== 'arkin.paroan@inventi.ph') {
-        alert("Only the admin can migrate the map data.");
-        return;
-      }
-      
-      try {
-        const layoutRef = doc(db, 'artifacts', appIdString, 'public', 'data', 'officeConfig', 'masterLayout');
-        
-        // Uploading the massive arrays to the cloud
-        await setDoc(layoutRef, {
-          rooms: FULL_ROOMS,
-          walls: FULL_WALLS,
-          props: FULL_PROPS,
-          signs: FULL_SIGNS,
-          colors: DEFAULT_COLORS,
-          updatedAt: serverTimestamp()
-        });
-        
-        alert("Success! Map data moved to Firebase.");
-      } catch (error) {
-        console.error("Migration failed: ", error);
-        alert("Failed to move data.");
-      }
-    };
 
     const root = ReactDOM.createRoot(document.getElementById('root')); 
     root.render(<App />);
